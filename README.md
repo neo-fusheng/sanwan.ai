@@ -1,5 +1,15 @@
 # I Broke My Leg. Then I Spent 14 Days Training an AI — Using Only My Voice.
 
+<p align="center">
+  <img src="images/sanwan-lobster.jpg" alt="Sanwan — the AI lobster agent at work" width="600">
+</p>
+
+<p align="center">
+  <em>Sanwan (三万), the AI lobster agent, hard at work.</em>
+</p>
+
+---
+
 I'm Fu Sheng, CEO of [Cheetah Mobile](https://www.cmcm.com) (NYSE: CMCM). I've never been a programmer. I don't write code. I didn't even have a GitHub account before this project. On January 17, 2025, I fractured my leg skiing. Couldn't walk. Couldn't type. So I did the only thing I could: I talked to an AI, over and over, for 14 days straight.
 
 What started as boredom became an experiment. What became an experiment became something real — **an autonomous AI agent that sends messages, builds websites, monitors itself, and recovers from crashes. All trained by voice. By someone who has never written a line of code in his life.**
@@ -13,6 +23,12 @@ Her name is **Sanwan** (三万). She's a lobster. Long story.
 ---
 
 ## Why This Matters
+
+<p align="center">
+  <img src="ppt/science-lobster-computer.jpg" alt="Agent = Lobster + Computer" width="500">
+</p>
+
+<p align="center"><em>The core idea: Agent = Lobster 🦞 + Computer 💻</em></p>
 
 Everyone's talking about AI agents. Most people are still just chatting with them.
 
@@ -34,6 +50,12 @@ And I never wrote a single line of code. Every instruction was spoken.
 
 ## The 14-Day Journey
 
+<p align="center">
+  <img src="ppt/science/06.jpg" alt="14-Day Experiment Timeline" width="600">
+</p>
+
+<p align="center"><em>The 14-day experiment: from zero to an 8-agent autonomous system.</em></p>
+
 This isn't a polished product launch. It's a raw log of what happened when someone with **zero programming experience** pushed an AI agent to its limits using nothing but natural language.
 
 | Day | What Happened |
@@ -49,6 +71,12 @@ This isn't a polished product launch. It's a raw log of what happened when someo
 The full diary (11 entries, 220,000+ characters of conversation) is on [sanwan.ai/diary](https://sanwan.ai).
 
 ## What Makes This Different
+
+<p align="center">
+  <img src="ppt/science-brain-analogy.jpg" alt="Brain Architecture Analogy" width="500">
+</p>
+
+<p align="center"><em>How an AI agent maps to the human brain: Memory → Hippocampus, Skills → Muscle Memory, Cron → Reflexes.</em></p>
 
 I've seen hundreds of AI demos. Most are party tricks — impressive for 30 seconds, useless for real work. Sanwan is different because she was trained through **actual daily use**, not prompt engineering.
 
@@ -77,6 +105,12 @@ I've seen hundreds of AI demos. Most are party tricks — impressive for 30 seco
 | **100K+ reads** | on WeChat |
 
 ## The Bigger Point
+
+<p align="center">
+  <img src="images/sanwan-dog.jpg" alt="The real Sanwan — the dog that started it all" width="300">
+</p>
+
+<p align="center"><em>The real Sanwan 🐕 — the dog that inspired the name, and the AI that lived up to it.</em></p>
 
 This isn't really about me or about Sanwan. It's about what's coming.
 
