@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>坦克打飞机</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { overflow: hidden; background: #000; font-family: 'Arial', sans-serif; }
+#gameCanvas { display: block; width: 100vw; height: 100vh; }
+#ui {
+  position: fixed; top: 20px; left: 20px; z-index: 100;
+  color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+#score { font-size: 28px; font-weight: bold; color: #FFD700; }
+#level { font-size: 16px; color: #aef; margin-top: 4px; }
+#ammo { font-size: 16px; color: #faa; margin-top: 4px; }
+#crosshair {
+  position: fixed; top: 50%; left: 50%; z-index: 100;
+  width: 30px; height: 30px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+#crosshair::before, #crosshair::after {
+  content: '';
+  position: absolute;
+  background: rgba(255, 255, 0, 0.8);
+}
+#crosshair::before {
+  width: 2px; height: 30px;
+  left: 14px; top: 0;
+}
+#crosshair::after {
+  width: 30px; height: 2px;
+  left: 0; top: 14px;
+}
+#msg {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  color: #FFD700; font-size: 36px; font-weight: bold;
+  text-shadow: 2px 2px 8px #000; z-index: 200;
+  pointer-events: none; opacity: 0; transition: opacity 0.5s;
+}
+#hint {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  color: rgba(255,255,255,0.7); font-size: 13px; z-index: 100;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+<canvas id="gameCanvas"></canvas>
+<div id="ui">
+  <div id="score">分数: 0</div>
+  <div id="level">等级: 1</div>
+  <div id="ammo">弹药: ∞</div>
+</div>
+<div id="crosshair"></div>
+<div id="msg" id="hitMsg"></div>
+<div id="hint">鼠标移动瞄准 | 点击/空格 发射 | 移动端: 滑动瞄准+点击射击</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+// ========== GAME STATE ==========
+let score = 0;
+let level = 1;
+let lastShotTime = 0;
+const SHOT_COOLDOWN = 400;
+
+// ========== SCENE SETUP ==========
+const canvas = document.getElementById('gameCanvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const scene = new THREE.Scene();
+
+// Sky gradient background
+const skyGeo = new THREE.SphereGeometry(500, 32, 32);
+const skyMat = new THREE.ShaderMaterial({
+  uniforms: {},
+  vertexShader: `
+    varying vec3 vWorldPosition;
+    void main() {
+      vec4 worldPos = modelMatrix * vec4(position, 1.0);
+      vWorldPosition = worldPos.xyz;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    varying vec3 vWorldPosition;
+    void main() {
+      float t = normalize(vWorldPosition).y * 0.5 + 0.5;
+      vec3 skyTop = vec3(0.05, 0.15, 0.5);
+      vec3 skyBottom = vec3(0.4, 0.65, 0.9);
+      vec3 col = mix(skyBottom, skyTop, t);
+      gl_FragColor = vec4(col, 1.0);
+    }
+  `,
+  side: THREE.BackSide
+});
+const sky = new THREE.Mesh(skyGeo, skyMat);
+scene.add(sky);
+
+// Camera
+const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 5, 14);
+camera.lookAt(0, 3, 0);
+
+// Lights
+const ambientLight = new THREE.AmbientLight(0x6688cc, 0.6);
+scene.add(ambientLight);
+
+const sunLight = new THREE.DirectionalLight(0xffeedd, 1.2);
+sunLight.position.set(50, 80, 30);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.width = 2048;
+sunLight.shadow.mapSize.height = 2048;
+sunLight.shadow.camera.near = 0.5;
+sunLight.shadow.camera.far = 300;
+sunLight.shadow.camera.left = -60;
+sunLight.shadow.camera.right = 60;
+sunLight.shadow.camera.top = 60;
+sunLight.shadow.camera.bottom = -60;
+scene.add(sunLight);
+
+const fillLight = new THREE.DirectionalLight(0x4488ff, 0.3);
+fillLight.position.set(-30, 20, -20);
+scene.add(fillLight);
+
+// ========== GROUND ==========
+const groundGeo = new THREE.PlaneGeometry(200, 200, 40, 40);
+const groundMat = new THREE.MeshLambertMaterial({ color: 0x3a6b35 });
+// Add grid lines via vertex colors
+const ground = new THREE.Mesh(groundGeo, groundMat);
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// Grid overlay
+const gridHelper = new THREE.GridHelper(200, 40, 0x2d5228, 0x2d5228);
+gridHelper.position.y = 0.01;
+gridHelper.material.opacity = 0.3;
+gridHelper.material.transparent = true;
+scene.add(gridHelper);
+
+// ========== TANK ==========
+const tankGroup = new THREE.Group();
+scene.add(tankGroup);
+
+// Chassis
+const chassisMat = new THREE.MeshLambertMaterial({ color: 0x3d5c2a });
+const chassisGeo = new THREE.BoxGeometry(3.5, 0.9, 2.2);
+const chassis = new THREE.Mesh(chassisGeo, chassisMat);
+chassis.position.y = 0.45;
+chassis.castShadow = true;
+tankGroup.add(chassis);
+
+// Chassis detail - front slope
+const frontGeo = new THREE.BoxGeometry(0.6, 0.7, 2.2);
+const frontMesh = new THREE.Mesh(frontGeo, chassisMat);
+frontMesh.position.set(1.75, 0.65, 0);
+frontMesh.rotation.z = Math.PI / 8;
+frontMesh.castShadow = true;
+tankGroup.add(frontMesh);
+
+// Tracks (left and right)
+const trackMat = new THREE.MeshLambertMaterial({ color: 0x1a1a1a });
+for (let side of [-1, 1]) {
+  const trackGeo = new THREE.BoxGeometry(3.8, 0.5, 0.55);
+  const track = new THREE.Mesh(trackGeo, trackMat);
+  track.position.set(0, 0.25, side * 1.25);
+  track.castShadow = true;
+  tankGroup.add(track);
+  
+  // Wheels
+  for (let wx = -1.4; wx <= 1.5; wx += 0.7) {
+    const wheelGeo = new THREE.CylinderGeometry(0.35, 0.35, 0.4, 8);
+    const wheel = new THREE.Mesh(wheelGeo, trackMat);
+    wheel.rotation.x = Math.PI / 2;
+    wheel.position.set(wx, 0.25, side * 1.3);
+    wheel.castShadow = true;
+    tankGroup.add(wheel);
+  }
+}
+
+// Turret base
+const turretGroup = new THREE.Group();
+turretGroup.position.set(-0.2, 0.9, 0);
+tankGroup.add(turretGroup);
+
+const turretBaseMat = new THREE.MeshLambertMaterial({ color: 0x4a6e30 });
+const turretGeo = new THREE.CylinderGeometry(0.9, 1.0, 0.7, 8);
+const turretBase = new THREE.Mesh(turretGeo, turretBaseMat);
+turretBase.position.y = 0.35;
+turretBase.castShadow = true;
+turretGroup.add(turretBase);
+
+// Turret top
+const turretTopGeo = new THREE.BoxGeometry(1.5, 0.5, 1.6);
+const turretTop = new THREE.Mesh(turretTopGeo, turretBaseMat);
+turretTop.position.y = 0.85;
+turretTop.castShadow = true;
+turretGroup.add(turretTop);
+
+// Barrel group (can pitch up/down)
+const barrelGroup = new THREE.Group();
+barrelGroup.position.set(0.5, 1.0, 0);
+turretGroup.add(barrelGroup);
+
+const barrelMat = new THREE.MeshLambertMaterial({ color: 0x2a3d1a });
+const barrelGeo = new THREE.CylinderGeometry(0.12, 0.16, 2.2, 8);
+const barrel = new THREE.Mesh(barrelGeo, barrelMat);
+barrel.rotation.z = -Math.PI / 2;
+barrel.position.set(1.1, 0, 0);
+barrel.castShadow = true;
+barrelGroup.add(barrel);
+
+// Barrel tip (muzzle)
+const muzzleGeo = new THREE.CylinderGeometry(0.14, 0.12, 0.3, 8);
+const muzzle = new THREE.Mesh(muzzleGeo, barrelMat);
+muzzle.rotation.z = -Math.PI / 2;
+muzzle.position.set(2.3, 0, 0);
+barrelGroup.add(muzzle);
+
+// Position tank
+tankGroup.position.set(0, 0, 0);
+
+// ========== PLANES ==========
+const planes = [];
+const planeColors = [0xe74c3c, 0x3498db, 0xe67e22, 0x9b59b6, 0x1abc9c, 0xf39c12];
+
+function createPlane() {
+  const planeGroup = new THREE.Group();
+  const colorIdx = Math.floor(Math.random() * planeColors.length);
+  const color = planeColors[colorIdx];
+  
+  const planeMat = new THREE.MeshLambertMaterial({ color });
+  const darkMat = new THREE.MeshLambertMaterial({ color: 0x222222 });
+  
+  // Fuselage
+  const fuselageGeo = new THREE.BoxGeometry(2.5, 0.5, 0.55);
+  const fuselage = new THREE.Mesh(fuselageGeo, planeMat);
+  planeGroup.add(fuselage);
+  
+  // Nose cone
+  const noseGeo = new THREE.ConeGeometry(0.28, 0.8, 6);
+  const nose = new THREE.Mesh(noseGeo, planeMat);
+  nose.rotation.z = -Math.PI / 2;
+  nose.position.x = 1.65;
+  planeGroup.add(nose);
+  
+  // Wings
+  const wingGeo = new THREE.BoxGeometry(0.8, 0.1, 3.5);
+  const wings = new THREE.Mesh(wingGeo, planeMat);
+  wings.position.x = -0.2;
+  planeGroup.add(wings);
+  
+  // Wing tips
+  for (let side of [-1, 1]) {
+    const tipGeo = new THREE.BoxGeometry(0.5, 0.08, 0.6);
+    const tip = new THREE.Mesh(tipGeo, new THREE.MeshLambertMaterial({ color: 0xffffff }));
+    tip.position.set(-0.2, 0, side * 1.8);
+    planeGroup.add(tip);
+  }
+  
+  // Tail
+  const tailGeo = new THREE.BoxGeometry(0.6, 0.08, 1.4);
+  const tail = new THREE.Mesh(tailGeo, planeMat);
+  tail.position.set(-1.1, 0, 0);
+  planeGroup.add(tail);
+  
+  // Tail fin (vertical)
+  const finGeo = new THREE.BoxGeometry(0.5, 0.6, 0.1);
+  const fin = new THREE.Mesh(finGeo, planeMat);
+  fin.position.set(-1.0, 0.35, 0);
+  planeGroup.add(fin);
+  
+  // Engine pods
+  for (let side of [-1, 1]) {
+    const engineGeo = new THREE.CylinderGeometry(0.15, 0.18, 0.8, 6);
+    const engine = new THREE.Mesh(engineGeo, darkMat);
+    engine.rotation.z = Math.PI / 2;
+    engine.position.set(-0.1, -0.2, side * 0.9);
+    planeGroup.add(engine);
+  }
+  
+  // Cockpit
+  const cockpitGeo = new THREE.BoxGeometry(0.5, 0.3, 0.4);
+  const cockpitMat = new THREE.MeshLambertMaterial({ color: 0x88ccff, transparent: true, opacity: 0.7 });
+  const cockpit = new THREE.Mesh(cockpitGeo, cockpitMat);
+  cockpit.position.set(0.6, 0.3, 0);
+  planeGroup.add(cockpit);
+  
+  // Spawn from random direction at random height
+  const angle = Math.random() * Math.PI * 2;
+  const radius = 120;
+  const height = 15 + Math.random() * 35;
+  planeGroup.position.set(
+    Math.cos(angle) * radius,
+    height,
+    Math.sin(angle) * radius
+  );
+  
+  // Random target point near center
+  const targetX = (Math.random() - 0.5) * 40;
+  const targetZ = (Math.random() - 0.5) * 40;
+  const targetY = height + (Math.random() - 0.5) * 10;
+  
+  const dir = new THREE.Vector3(targetX - planeGroup.position.x, targetY - planeGroup.position.y, targetZ - planeGroup.position.z).normalize();
+  const speed = 0.12 + Math.random() * 0.12 + level * 0.015;
+  
+  planeGroup.lookAt(planeGroup.position.clone().add(dir));
+  
+  scene.add(planeGroup);
+  
+  const planeObj = {
+    mesh: planeGroup,
+    dir,
+    speed,
+    alive: true,
+    radius: 2.5,
+    bobPhase: Math.random() * Math.PI * 2,
+    rollPhase: Math.random() * Math.PI * 2
+  };
+  planes.push(planeObj);
+  return planeObj;
+}
+
+// Spawn initial planes
+for (let i = 0; i < 4; i++) createPlane();
+
+// ========== BULLETS ==========
+const bullets = [];
+
+function fireBullet() {
+  const now = Date.now();
+  if (now - lastShotTime < SHOT_COOLDOWN) return;
+  lastShotTime = now;
+  
+  // Get barrel tip world position
+  const muzzleWorldPos = new THREE.Vector3();
+  muzzle.getWorldPosition(muzzleWorldPos);
+  
+  // Get barrel direction
+  const barrelDir = new THREE.Vector3(1, 0, 0);
+  barrelGroup.localToWorld(barrelDir);
+  barrelGroup.getWorldPosition(new THREE.Vector3()).sub(barrelDir).negate();
+  
+  // Actually compute direction from barrel orientation
+  const dir = new THREE.Vector3();
+  barrelGroup.getWorldDirection(dir);
+  // The barrel extends along local X
+  const localX = new THREE.Vector3(1, 0, 0);
+  dir.copy(localX).applyQuaternion(barrelGroup.getWorldQuaternion(new THREE.Quaternion())).normalize();
+  
+  const bulletGeo = new THREE.SphereGeometry(0.12, 6, 6);
+  const bulletMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+  const bulletMesh = new THREE.Mesh(bulletGeo, bulletMat);
+  bulletMesh.position.copy(muzzleWorldPos);
+  scene.add(bulletMesh);
+  
+  // Trail
+  const trailPoints = [];
+  for (let i = 0; i < 12; i++) trailPoints.push(muzzleWorldPos.clone());
+  const trailGeo = new THREE.BufferGeometry().setFromPoints(trailPoints);
+  const trailMat = new THREE.LineBasicMaterial({ color: 0xff8800, transparent: true, opacity: 0.7 });
+  const trail = new THREE.Line(trailGeo, trailMat);
+  scene.add(trail);
+  
+  const bullet = {
+    mesh: bulletMesh,
+    trail,
+    trailPoints,
+    velocity: dir.clone().multiplyScalar(0.8),
+    gravity: new THREE.Vector3(0, -0.003, 0),
+    alive: true,
+    life: 0,
+    maxLife: 300
+  };
+  bullets.push(bullet);
+  
+  // Muzzle flash
+  const flashGeo = new THREE.SphereGeometry(0.25, 8, 8);
+  const flashMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 1.0 });
+  const flash = new THREE.Mesh(flashGeo, flashMat);
+  flash.position.copy(muzzleWorldPos);
+  scene.add(flash);
+  setTimeout(() => scene.remove(flash), 80);
+  
+  const pLight = new THREE.PointLight(0xffaa00, 3, 8);
+  pLight.position.copy(muzzleWorldPos);
+  scene.add(pLight);
+  setTimeout(() => scene.remove(pLight), 100);
+}
+
+// ========== EXPLOSIONS ==========
+const explosions = [];
+
+function createExplosion(pos, color = 0xff6600) {
+  const particles = [];
+  const colors = [0xff4400, 0xff8800, 0xffdd00, 0xffffff, 0xff0044, 0x44ff00, 0x0088ff];
+  
+  for (let i = 0; i < 25; i++) {
+    const r = colors[Math.floor(Math.random() * colors.length)];
+    const geo = new THREE.SphereGeometry(0.08 + Math.random() * 0.2, 4, 4);
+    const mat = new THREE.MeshBasicMaterial({ color: r });
+    const p = new THREE.Mesh(geo, mat);
+    p.position.copy(pos);
+    const vel = new THREE.Vector3(
+      (Math.random() - 0.5) * 0.5,
+      Math.random() * 0.4 + 0.1,
+      (Math.random() - 0.5) * 0.5
+    );
+    scene.add(p);
+    particles.push({ mesh: p, vel, life: 0, maxLife: 40 + Math.random() * 30 });
+  }
+  
+  // Explosion light
+  const eLight = new THREE.PointLight(0xff8800, 5, 20);
+  eLight.position.copy(pos);
+  scene.add(eLight);
+  
+  explosions.push({ particles, light: eLight, life: 0 });
+  
+  // Show hit message
+  const msg = document.getElementById('msg');
+  msg.textContent = '+100 击中!';
+  msg.style.opacity = '1';
+  setTimeout(() => msg.style.opacity = '0', 800);
+}
+
+// ========== MOUSE / TOUCH CONTROLS ==========
+let mouseX = 0, mouseY = 0;
+let targetYaw = 0, targetPitch = 0.2;
+let currentYaw = 0, currentPitch = 0.2;
+
+document.addEventListener('mousemove', (e) => {
+  const nx = (e.clientX / window.innerWidth - 0.5) * 2;
+  const ny = -(e.clientY / window.innerHeight - 0.5) * 2;
+  targetYaw = nx * Math.PI;
+  targetPitch = Math.max(0.05, Math.min(1.0, (ny + 1) * 0.5 + 0.05));
+});
+
+document.addEventListener('click', (e) => {
+  fireBullet();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') {
+    e.preventDefault();
+    fireBullet();
+  }
+});
+
+// Touch support
+let touchStartX = 0, touchStartY = 0;
+document.addEventListener('touchstart', (e) => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+document.addEventListener('touchmove', (e) => {
+  const dx = (e.touches[0].clientX - touchStartX) / window.innerWidth;
+  const dy = (e.touches[0].clientY - touchStartY) / window.innerHeight;
+  targetYaw += dx * Math.PI * 2;
+  targetPitch = Math.max(0.05, Math.min(1.0, targetPitch - dy));
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  e.preventDefault();
+}, { passive: false });
+
+document.addEventListener('touchend', () => {
+  fireBullet();
+});
+
+// ========== RESIZE ==========
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ========== GAME LOOP ==========
+let frameCount = 0;
+
+function updateScore(pts) {
+  score += pts;
+  document.getElementById('score').textContent = '分数: ' + score;
+  level = Math.floor(score / 500) + 1;
+  document.getElementById('level').textContent = '等级: ' + level;
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  frameCount++;
+  
+  // Smooth turret rotation
+  currentYaw += (targetYaw - currentYaw) * 0.08;
+  currentPitch += (targetPitch - currentPitch) * 0.08;
+  
+  turretGroup.rotation.y = currentYaw;
+  barrelGroup.rotation.z = -currentPitch * 0.7;
+  
+  // Update planes
+  for (let i = planes.length - 1; i >= 0; i--) {
+    const plane = planes[i];
+    if (!plane.alive) {
+      planes.splice(i, 1);
+      createPlane();
+      continue;
+    }
+    
+    // Move plane
+    plane.mesh.position.addScaledVector(plane.dir, plane.speed);
+    
+    // Bobbing and rolling
+    plane.bobPhase += 0.02;
+    plane.rollPhase += 0.015;
+    plane.mesh.rotation.z = Math.sin(plane.rollPhase) * 0.2;
+    
+    // Check bounds
+    const dist = plane.mesh.position.length();
+    if (dist > 150) {
+      scene.remove(plane.mesh);
+      plane.alive = false;
+    }
+  }
+  
+  // Update bullets
+  for (let i = bullets.length - 1; i >= 0; i--) {
+    const bullet = bullets[i];
+    if (!bullet.alive) {
+      scene.remove(bullet.mesh);
+      scene.remove(bullet.trail);
+      bullets.splice(i, 1);
+      continue;
+    }
+    
+    bullet.velocity.add(bullet.gravity);
+    bullet.mesh.position.add(bullet.velocity);
+    bullet.life++;
+    
+    // Update trail
+    bullet.trailPoints.unshift(bullet.mesh.position.clone());
+    if (bullet.trailPoints.length > 12) bullet.trailPoints.pop();
+    bullet.trail.geometry.setFromPoints(bullet.trailPoints);
+    bullet.trail.material.opacity = Math.max(0, 0.7 - bullet.life / 120);
+    
+    if (bullet.life > bullet.maxLife || bullet.mesh.position.y < -2) {
+      bullet.alive = false;
+      continue;
+    }
+    
+    // Check collision with planes
+    for (const plane of planes) {
+      if (!plane.alive) continue;
+      const d = bullet.mesh.position.distanceTo(plane.mesh.position);
+      if (d < plane.radius) {
+        createExplosion(plane.mesh.position.clone());
+        scene.remove(plane.mesh);
+        plane.alive = false;
+        bullet.alive = false;
+        updateScore(100);
+        break;
+      }
+    }
+  }
+  
+  // Update explosions
+  for (let i = explosions.length - 1; i >= 0; i--) {
+    const exp = explosions[i];
+    exp.life++;
+    
+    let allDone = true;
+    for (const p of exp.particles) {
+      if (p.life < p.maxLife) {
+        allDone = false;
+        p.vel.y -= 0.015;
+        p.mesh.position.add(p.vel);
+        p.mesh.material.opacity = 1 - p.life / p.maxLife;
+        p.mesh.material.transparent = true;
+        p.life++;
+      } else {
+        scene.remove(p.mesh);
+      }
+    }
+    
+    exp.light.intensity = Math.max(0, 5 - exp.life * 0.3);
+    
+    if (allDone || exp.life > 80) {
+      scene.remove(exp.light);
+      explosions.splice(i, 1);
+    }
+  }
+  
+  // Spawn more planes if needed
+  if (planes.filter(p => p.alive).length < 3 + level) {
+    createPlane();
+  }
+  
+  renderer.render(scene, camera);
+}
+
+animate();
+</script>
+</body>
+</html>

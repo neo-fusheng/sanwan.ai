@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>领养你的龙虾 🦞 - EasyClaw</title>
+<meta name="description" content="免费领养你的AI龙虾助手。一键安装，零配置，连接你的聊天工具，开始对话。">
+<meta property="og:title" content="🦞 领养你的龙虾 - EasyClaw">
+<meta property="og:description" content="一键安装，零配置。你的私人AI龙虾助手。">
+<meta property="og:image" content="https://sanwan.ai/ppt/page-01.jpg">
+<meta property="og:url" content="https://sanwan.ai/easyclaw.html">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦞</text></svg>">
+<style>@font-face{font-family:"Smiley Sans";src:url("fonts/smiley-sans.woff2") format("woff2");font-display:swap}</style>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#faf8f4;color:#333}
+nav{position:fixed;top:0;left:0;width:100%;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;background:rgba(255,255,255,0.97);backdrop-filter:blur(12px);border-bottom:2px solid #e8e4df;box-shadow:0 1px 8px rgba(0,0,0,0.04)}
+nav .logo{font-size:22px;font-weight:800;color:#c0392b;text-decoration:none;font-family:'ZCOOL KuaiLe',sans-serif}
+nav .links{display:flex;gap:20px}
+nav .links a{color:#555;text-decoration:none;font-weight:600;padding:6px 4px;font-size:15px}
+nav .links a:hover{color:#c0392b} .hamburger{display:none;background:none;border:none;font-size:15px;cursor:pointer;color:#333;font-weight:600;padding:6px 12px;border-radius:8px;border:1.5px solid #ddd}
+
+.hero{text-align:center;padding:80px 20px 30px;background:linear-gradient(180deg,#fff 0%,#faf8f4 100%)}
+.hero .lobster{font-size:80px;margin-bottom:16px;display:block;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.hero h1{font-size:34px;font-weight:900;margin-bottom:12px;color:#c0392b;font-family:'LXGW WenKai','Noto Sans SC',sans-serif}
+.hero p{font-size:16px;color:#777;max-width:500px;margin:0 auto 20px}
+
+.versions{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:700px;margin:0 auto 40px;padding:0 20px}
+.version-card{border:2px solid #eee;border-radius:12px;padding:24px;text-align:center;background:#fff;transition:.2s}
+.version-card:hover{border-color:#c0392b;transform:translateY(-2px)}
+.version-card.recommended{border-color:#c0392b;position:relative}
+.version-card.recommended::after{content:'⭐推荐';position:absolute;top:-10px;right:16px;background:#c0392b;color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:10px}
+.version-card h3{font-size:18px;font-weight:800;margin:8px 0 4px}
+.version-card .subtitle{font-size:13px;color:#c0392b;font-weight:600;margin-bottom:12px}
+.version-card ul{text-align:left;font-size:13px;line-height:2;list-style:none;padding:0}
+.version-card li::before{content:'✅ ';margin-right:4px}
+.version-card .btn{display:inline-block;margin-top:16px;padding:10px 24px;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;transition:.2s}
+.version-card .btn-primary{background:#c0392b;color:#fff}
+.version-card .btn-primary:hover{background:#a93226}
+.version-card .btn-secondary{background:#fff;color:#c0392b;border:2px solid #c0392b}
+
+.section{max-width:800px;margin:0 auto;padding:30px 20px}
+.section h2{font-size:28px;font-weight:900;text-align:center;margin-bottom:24px;font-family:'LXGW WenKai','Noto Sans SC',sans-serif}
+
+.step{background:#fff;border:2px solid #eee;border-radius:12px;padding:24px;margin-bottom:16px;position:relative;padding-left:80px}
+.step-num{position:absolute;left:20px;top:24px;width:44px;height:44px;background:#c0392b;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px}
+.step h3{font-size:17px;font-weight:700;margin-bottom:4px}
+.step .time{font-size:12px;color:#c0392b;font-weight:600;margin-bottom:8px}
+.step p{font-size:14px;color:#666;line-height:1.6}
+
+.channels{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-top:16px}
+.channel{text-align:center;padding:16px 8px;border:2px solid #eee;border-radius:10px;background:#fff;transition:.2s}
+.channel:hover{border-color:#c0392b;transform:translateY(-2px)}
+.channel .ch-icon{font-size:28px;display:block;margin-bottom:6px}
+.channel .ch-name{font-size:13px;font-weight:700}
+
+.flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:30px 0;padding:0 20px}
+.flow-step{text-align:center;padding:12px 16px;background:#fff;border:2px solid #eee;border-radius:10px;min-width:90px}
+.flow-step .fl-icon{font-size:24px;display:block;margin-bottom:4px}
+.flow-step .fl-text{font-size:12px;font-weight:600}
+.flow-arrow{font-size:20px;color:#c0392b;font-weight:900}
+
+.features{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+.feature{background:#fff;border:2px solid #eee;border-radius:10px;padding:16px}
+.feature h4{font-size:14px;font-weight:700;margin-bottom:6px}
+.feature p{font-size:12px;color:#666;line-height:1.5}
+
+.faq{max-width:800px;margin:0 auto;padding:30px 20px 40px}
+.faq h2{font-size:28px;font-weight:900;text-align:center;margin-bottom:24px;font-family:'LXGW WenKai','Noto Sans SC',sans-serif}
+.faq-item{background:#fff;border:2px solid #eee;border-radius:10px;margin-bottom:10px;overflow:hidden}
+.faq-q{padding:14px 20px;font-weight:700;font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.faq-q::after{content:'＋';color:#c0392b;font-size:18px;transition:.2s}
+.faq-item.open .faq-q::after{content:'－'}
+.faq-a{padding:0 20px 14px;font-size:14px;color:#666;line-height:1.6;display:none}
+.faq-item.open .faq-a{display:block}
+
+.final-cta{text-align:center;padding:40px 20px;background:#fff;border-top:2px solid #eee}
+.final-cta h2{font-size:24px;font-weight:900;margin-bottom:10px}
+.final-cta p{font-size:15px;color:#777;margin-bottom:20px}
+.final-cta .btn-big{display:inline-block;background:#c0392b;color:#fff;padding:14px 32px;border-radius:10px;font-weight:800;font-size:16px;text-decoration:none;transition:.2s}
+.final-cta .btn-big:hover{background:#a93226;transform:translateY(-2px);box-shadow:0 6px 20px rgba(192,57,43,0.3)}
+
+footer{text-align:center;padding:20px;font-size:12px;color:#999}
+
+@media(max-width:480px){
+  .versions{grid-template-columns:1fr}
+  .features{grid-template-columns:1fr}
+  .hero h1{font-size:24px}
+  nav .links{display:none} .hamburger{display:block !important} nav .links.open{display:flex;flex-direction:column;position:absolute;top:56px;right:16px;background:#fff;border:1.5px solid #ddd;border-radius:10px;padding:12px 16px;gap:12px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}
+  .step{padding-left:70px}
+}
+</style>
+<link href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><style>.float-mascot{position:fixed;bottom:20px;right:16px;z-index:99;display:flex;flex-direction:column;align-items:center;animation:mascot-float 3s ease-in-out infinite}
+.float-lobster{font-size:48px;cursor:pointer;transition:transform .2s;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.15))}
+.float-lobster:hover{transform:scale(1.15) rotate(-5deg)}
+.float-bubble{background:#fff;border:1.5px solid #f0d0cc;padding:10px 14px;border-radius:16px;text-align:center;margin-bottom:4px;box-shadow:0 4px 20px rgba(192,57,43,0.12);position:relative;animation:popIn .5s ease .3s both}
+.bubble-tail{width:10px;height:10px;background:#fff;border-right:2px solid #f0d0cc;border-bottom:2px solid #f0d0cc;position:absolute;bottom:-6px;left:50%;transform:translateX(-50%) rotate(45deg)}
+.bubble-dot{width:6px;height:6px;background:#f0d0cc;border-radius:50%;position:absolute;bottom:-14px;right:30%}
+@keyframes mascot-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes btn-glow{0%,100%{box-shadow:0 0 8px rgba(192,57,43,0.3)}50%{box-shadow:0 0 18px rgba(192,57,43,0.5)}}</style>
+  <link rel="canonical" href="https://sanwan.ai/easyclaw.html">
+  <meta property="og:type" content="website">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "领养你的龙虾 — EasyClaw", "description": "免费领养你的AI龙虾助手。一键安装，零配置，连接你的聊天工具，开始对话。", "url": "https://sanwan.ai/easyclaw.html", "publisher": {"@type": "Organization", "name": "sanwan.ai", "url": "https://sanwan.ai"}, "datePublished": "2026-03-01", "dateModified": "2026-03-18"}</script>
+  <link rel="alternate" hreflang="zh" href="https://sanwan.ai/easyclaw.html" />
+  <link rel="alternate" hreflang="en" href="https://sanwan.ai/en/easyclaw.html" />
+  <link rel="alternate" hreflang="x-default" href="https://sanwan.ai/en/easyclaw.html" />
+</head>
+<body>
+<nav>
+  <a class="logo" href="/">🦞 龙虾养成日记</a>
+  <button class="hamburger" style="display:none" onclick="document.querySelector('.links').classList.toggle('open')">☰ 菜单</button>
+  <div class="links">
+    <a href="/">首页</a>
+<a href="diary.html">📖 日记</a>
+    <a href="articles.html">📝 文章</a>
+    <a href="science.html">🔬 科普</a>
+    <a href="skills.html">🔧 技能</a>
+    <a href="easyclaw.html" style="color:#c0392b">EasyClaw</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <span class="lobster">🦞</span>
+  <h1>领养你的 Baby 龙虾</h1>
+  <p>一键安装，零配置，无需API Key。<br>选择一种方式，开始领养你的专属AI龙虾伙伴。</p>
+</div>
+
+<!-- Two versions -->
+<div class="versions">
+  <div class="version-card recommended">
+    <div style="font-size:36px">💻</div>
+    <h3>个人电脑版</h3>
+    <div class="subtitle">免费 · 立即可用</div>
+    <ul>
+      <li>一键安装，零配置</li>
+      <li>数据完全私有</li>
+      <li>与本地文件深度联动</li>
+      <li>开源透明，自由定制</li>
+    </ul>
+    <a class="btn btn-primary" href="https://easyclaw.com" target="_blank">🦞 免费下载</a>
+  </div>
+  <div class="version-card">
+    <div style="font-size:36px">☁️</div>
+    <h3>企业云上版</h3>
+    <div class="subtitle">7×24在线 · 团队协作</div>
+    <ul>
+      <li>7×24小时不间断运行</li>
+      <li>多Agent团队协作</li>
+      <li>企业级安全与权限</li>
+      <li>无需维护服务器</li>
+    </ul>
+    <a class="btn btn-secondary" href="https://easyclaw.work" target="_blank">了解更多</a>
+  </div>
+</div>
+
+<!-- Adopt Flow -->
+<div class="flow">
+  <div class="flow-step"><span class="fl-icon">💡</span><span class="fl-text">描述想法</span></div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step"><span class="fl-icon">🦞</span><span class="fl-text">龙虾执行</span></div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step"><span class="fl-icon">🚀</span><span class="fl-text">即时交付</span></div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step"><span class="fl-icon">💬</span><span class="fl-text">反馈训练</span></div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step"><span class="fl-icon">🧬</span><span class="fl-text">龙虾进化</span></div>
+</div>
+
+<!-- Steps -->
+<div class="section">
+  <h2>3步领养，30秒上手</h2>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <h3>下载安装 EasyClaw</h3>
+    <div class="time">⏱ 约30秒</div>
+    <p>访问 <a href="https://easyclaw.com" style="color:#c0392b;font-weight:700">easyclaw.com</a>，一键下载安装包。支持 macOS / Windows / Linux。<br><strong>零配置，无需API Key，开箱即用。</strong></p>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <h3>连接你的聊天工具</h3>
+    <div class="time">⏱ 约1分钟</div>
+    <p>把龙虾连到你常用的聊天App。在你已有的工具里直接和龙虾对话，无需下载新App。</p>
+    <div class="channels">
+      <div class="channel"><span class="ch-icon">💬</span><span class="ch-name">WhatsApp</span></div>
+      <div class="channel"><span class="ch-icon">✈️</span><span class="ch-name">Telegram</span></div>
+      <div class="channel"><span class="ch-icon">🎮</span><span class="ch-name">Discord</span></div>
+      <div class="channel"><span class="ch-icon">📘</span><span class="ch-name">飞书</span></div>
+      <div class="channel"><span class="ch-icon">💚</span><span class="ch-name">微信</span></div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <h3>开始对话，养成你的龙虾！</h3>
+    <div class="time">🎉 完成！</div>
+    <p>跟龙虾说的第一句话：</p>
+    <div style="background:#faf8f4;border:2px dashed #ddd;border-radius:8px;padding:12px;margin-top:8px;font-size:14px;color:#c0392b;font-weight:600">
+      "嘿，你好！你是谁？我是你的新主人 😊"
+    </div>
+    <p style="margin-top:12px;font-size:13px;color:#888">它会自我介绍、了解你、问你想叫它什么名字。每只龙虾都是独一无二的。</p>
+  </div>
+</div>
+
+<!-- Key Features -->
+<div class="section">
+  <h2>为什么选龙虾？</h2>
+  <div class="features">
+    <div class="feature">
+      <h4>☁️ 7×24 云端在线</h4>
+      <p>你的龙虾永不休息。凌晨三点发消息，秒回。出差路上一句话，活儿就干完了。</p>
+    </div>
+    <div class="feature">
+      <h4>💎 只属于你</h4>
+      <p>数据完全私有，对话记忆、创作偏好不与任何人共享。你的龙虾只忠于你。</p>
+    </div>
+    <div class="feature">
+      <h4>🧬 越用越聪明</h4>
+      <p>教它你的风格、偏好、工作流。用得越多，越像你的分身。你在进化，它也在进化。</p>
+    </div>
+    <div class="feature">
+      <h4>📱 随身多平台</h4>
+      <p>在你已有的聊天工具里直接使用。通勤用WhatsApp，办公用飞书，团队用Discord。</p>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+
+<div class="section" style="max-width:800px;margin:0 auto;padding:20px;">
+  <h2 style="font-size:1.4rem;font-weight:900;margin-bottom:12px;">🚀 性能与扩展：从小团队到万人企业</h2>
+  <p style="font-size:14px;color:#666;line-height:1.8;margin-bottom:20px;">无论你是独立创作者还是大型企业，龙虾都能满足你的需求。从个人版到企业版，平滑升级无需数据迁移。</p>
+  
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+    <div style="background:#fff;border:2px solid #eee;border-radius:12px;padding:18px;">
+      <h4 style="font-size:14px;font-weight:800;margin-bottom:6px;">🌱 个人版（免费）</h4>
+      <p style="font-size:12px;color:#666;line-height:1.6;">适合个人用户。数据存在本地，无限对话历史，基础技能即装即用。一台电脑，一个账号，永远免费。</p>
+    </div>
+    <div style="background:#fff;border:2px solid #eee;border-radius:12px;padding:18px;">
+      <h4 style="font-size:14px;font-weight:800;margin-bottom:6px;">🏢 企业版</h4>
+      <p style="font-size:12px;color:#666;line-height:1.6;">适合团队和企业。独立云实例，SSO单点登录，审计日志，7×24运维支持。按需扩容，按用量计费。</p>
+    </div>
+    <div style="background:#fff;border:2px solid #eee;border-radius:12px;padding:18px;">
+      <h4 style="font-size:14px;font-weight:800;margin-bottom:6px;">🔐 私有化部署</h4>
+      <p style="font-size:12px;color:#666;line-height:1.6;">适合金融、政务等高合规行业。龙虾运行在你的服务器上，数据不出内网，完全自主可控。</p>
+    </div>
+    <div style="background:#fff;border:2px solid #eee;border-radius:12px;padding:18px;">
+      <h4 style="font-size:14px;font-weight:800;margin-bottom:6px;">🌍 全球加速</h4>
+      <p style="font-size:12px;color:#666;line-height:1.6;">全球15个数据中心，智能选择最优节点。出海企业也能享受低延迟的AI服务体验。</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:15px;font-weight:800;margin:20px 0 10px;">典型应用场景</h3>
+  <div style="background:#fff;border:2px solid #eee;border-radius:12px;padding:18px;">
+    <ul style="font-size:13px;line-height:2;color:#555;padding-left:20px;">
+      <li><strong>内容创作团队：</strong>多只龙虾分工协作，笔杆子写稿、社区官推广、参谋研究，效率提升10倍</li>
+      <li><strong>电商运营：</strong>自动回复客户、处理订单、监控竞品、生成日报，24小时不间断</li>
+      <li><strong>技术团队：</strong>代码审查、Bug追踪、文档生成、API测试，用对话完成开发工作流</li>
+      <li><strong>销售团队：</strong>客户线索跟进、销售话术优化、合同审查、会议纪要</li>
+      <li><strong>人力资源：</strong>简历筛选、面试安排、入职流程自动化、员工问答机器人</li>
+    </ul>
+  </div>
+</div>
+
+
+<div class="section" style="max-width:800px;margin:0 auto;padding:20px;">
+  <h2 style="font-size:1.4rem;font-weight:900;margin-bottom:12px;">🚀 性能与扩展：从小团队到万人企业</h2>
+  <p style="font-size:14px;color:#666;line-height:1.8;margin-bottom:20px;">无论你是独立创作者还是大型企业，龙虾都能满足你的需求。从个人版到企业版，平滑升级无需数据迁移。</p>
+  
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+    <div style="background:#fff;border:2px solid #eee;border-radius:12px;padding:18px;">
+      <h4 style="font-size:14px;font-weight:800;margin-bottom:6px;">🌱 个人版（免费）</h4>
+      <p style="font-size:12px;color:#666;line-height:1.6;">适合个人用户。数据存在本地，无限对话历史，基础技能即装即用。一台电脑，一个账号，永远免费。</p>
+    </div>
+    <div style="background:#fff;border:2px solid #eee;border-radius:12px;padding:18px;">
+      <h4 style="font-size:14px;font-weight:800;margin-bottom:6px;">🏢 企业版</h4>
+      <p style="font-size:12px;color:#666;line-height:1.6;">适合团队和企业。独立云实例，SSO单点登录，审计日志，7×24运维支持。按需扩容，按用量计费。</p>
+    </div>
+    <div style="background:#fff;border:2px solid #eee;border-radius:12px;padding:18px;">
+      <h4 style="font-size:14px;font-weight:800;margin-bottom:6px;">🔐 私有化部署</h4>
+      <p style="font-size:12px;color:#666;line-height:1.6;">适合金融、政务等高合规行业。龙虾运行在你的服务器上，数据不出内网，完全自主可控。</p>
+    </div>
+    <div style="background:#fff;border:2px solid #eee;border-radius:12px;padding:18px;">
+      <h4 style="font-size:14px;font-weight:800;margin-bottom:6px;">🌍 全球加速</h4>
+      <p style="font-size:12px;color:#666;line-height:1.6;">全球15个数据中心，智能选择最优节点。出海企业也能享受低延迟的AI服务体验。</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:15px;font-weight:800;margin:20px 0 10px;">典型应用场景</h3>
+  <div style="background:#fff;border:2px solid #eee;border-radius:12px;padding:18px;">
+    <ul style="font-size:13px;line-height:2;color:#555;padding-left:20px;">
+      <li><strong>内容创作团队：</strong>多只龙虾分工协作，笔杆子写稿、社区官推广、参谋研究，效率提升10倍</li>
+      <li><strong>电商运营：</strong>自动回复客户、处理订单、监控竞品、生成日报，24小时不间断</li>
+      <li><strong>技术团队：</strong>代码审查、Bug追踪、文档生成、API测试，用对话完成开发工作流</li>
+      <li><strong>销售团队：</strong>客户线索跟进、销售话术优化、合同审查、会议纪要</li>
+      <li><strong>人力资源：</strong>简历筛选、面试安排、入职流程自动化、员工问答机器人</li>
+    </ul>
+  </div>
+</div>
+
+<div class="faq">
+  <h2>❓ 常见问题</h2>
+
+  <div class="faq-item open">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">真的免费吗？</div>
+
+<!-- SEO增强：技术架构 --><div class="section" style="max-width:800px;margin:0 auto;padding:20px;">  <h2 style="font-size:1.4rem;font-weight:900;margin-bottom:12px;">🔧 技术架构：龙虾为什么这么快？</h2>  <div style="background:#fff;border:2px solid #eee;border-radius:12px;padding:20px;margin-bottom:16px;">    <h3 style="font-size:15px;font-weight:800;margin-bottom:8px;">☁️ 云端推理架构</h3>    <p style="font-size:13px;color:#666;line-height:1.7;">龙虾的AI推理在云端完成，你不需要GPU也能享受顶级AI能力。个人电脑版只负责交互和数据存储，复杂计算交给云端——这就是为什么树莓派也能流畅运行。</p>  </div>  <div style="background:#fff;border:2px solid #eee;border-radius:12px;padding:20px;margin-bottom:16px;">    <h3 style="font-size:15px;font-weight:800;margin-bottom:8px;">🔒 企业级安全</h3>    <p style="font-size:13px;color:#666;line-height:1.7;">数据加密传输、存储加密、独立实例隔离。企业云上版通过ISO27001认证，支持私有化部署，满足金融、医疗等高合规要求。</p>  </div>  <div style="background:#fff;border:2px solid #eee;border-radius:12px;padding:20px;">    <h3 style="font-size:15px;font-weight:800;margin-bottom:8px;">⚡ 低延迟响应</h3>    <p style="font-size:13px;color:#666;line-height:1.7;">全球多节点部署，智能路由选择最近服务器。平均响应时间<800ms，远低于行业平均水平。龙虾不会让你等太久。</p>  </div></div>

@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Tank vs Plane - Mobile</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    position: fixed; overflow: hidden; width: 100%; height: 100%;
+    background: #000; font-family: 'Arial', sans-serif;
+    touch-action: manipulation;
+    user-select: none; -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+  canvas { display: block; width: 100%; height: 100%; }
+
+  #ui {
+    position: fixed; top: 0; left: 0; right: 0; padding: 12px 14px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    pointer-events: none; z-index: 10;
+  }
+
+  #score-panel {
+    background: rgba(0,0,0,0.55); backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.15); border-radius: 10px;
+    padding: 8px 14px; color: #fff;
+  }
+  #score-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #ffaa00; }
+  #score-value { font-size: 34px; font-weight: 900; line-height: 1; }
+  #combo { font-size: 13px; color: #00ff88; margin-top: 2px; display: none; }
+
+  #info-panel {
+    background: rgba(0,0,0,0.55); backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.15); border-radius: 10px;
+    padding: 8px 12px; color: #aaa; font-size: 10px;
+    text-align: right; line-height: 1.6;
+  }
+
+  /* Touch controls overlay */
+  #touch-controls {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 45%;
+    pointer-events: none; z-index: 50;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    padding: 0 20px 30px 20px;
+  }
+
+  #joystick-zone {
+    width: 140px; height: 140px; position: relative; pointer-events: all;
+  }
+  #joystick-base {
+    position: absolute; width: 120px; height: 120px;
+    border-radius: 50%; background: rgba(255,255,255,0.12);
+    border: 3px solid rgba(255,255,255,0.3);
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+  }
+  #joystick-thumb {
+    position: absolute; width: 50px; height: 50px;
+    border-radius: 50%; background: rgba(255,255,255,0.35);
+    border: 2px solid rgba(255,255,255,0.5);
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    transition: none;
+  }
+
+  #fire-btn {
+    width: 90px; height: 90px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(255,100,30,0.7), rgba(200,40,0,0.6));
+    border: 3px solid rgba(255,150,50,0.6);
+    pointer-events: all;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: bold; color: rgba(255,255,255,0.9);
+    text-shadow: 0 0 8px rgba(255,100,0,0.8);
+    box-shadow: 0 0 25px rgba(255,80,0,0.3);
+    user-select: none; -webkit-user-select: none;
+    transition: transform 0.1s;
+  }
+  #fire-btn:active {
+    transform: scale(0.85);
+    background: radial-gradient(circle at 35% 35%, rgba(255,150,50,0.9), rgba(255,60,0,0.8));
+    box-shadow: 0 0 40px rgba(255,100,0,0.6);
+  }
+
+  #fps-counter {
+    position: fixed; top: 12px; right: 50%; transform: translateX(50%);
+    font-size: 10px; color: rgba(255,255,255,0.5); z-index: 10;
+    pointer-events: none;
+  }
+
+  #game-over {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    display: none; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.75); z-index: 100; flex-direction: column;
+  }
+  #game-over h1 { color: #ff4444; font-size: 40px; margin-bottom: 8px; text-shadow: 0 0 20px rgba(255,68,68,0.5); }
+  #game-over .final-score { color: #fff; font-size: 60px; font-weight: 900; margin: 8px 0; }
+  #game-over button {
+    margin-top: 16px; padding: 14px 45px; font-size: 18px;
+    background: #ffaa00; color: #000; border: none; border-radius: 10px;
+    pointer-events: all; font-weight: bold; cursor: pointer;
+  }
+
+  @media (orientation: landscape) {
+    #touch-controls { padding: 0 40px 20px 40px; }
+  }
+  @media (min-width: 768px) {
+    #joystick-zone { width: 160px; height: 160px; }
+    #joystick-base { width: 140px; height: 140px; }
+    #joystick-thumb { width: 56px; height: 56px; }
+    #fire-btn { width: 100px; height: 100px; font-size: 16px; }
+    #score-value { font-size: 38px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="ui">
+  <div id="score-panel">
+    <div id="score-label">Score</div>
+    <div id="score-value">0</div>
+    <div id="combo"></div>
+  </div>
+  <div id="info-panel">
+    <div>🎯 Drag joystick: aim</div>
+    <div>🔥 Tap red: fire</div>
+    <div id="ammo-display">💣 ∞</div>
+  </div>
+</div>
+
+<div id="touch-controls">
+  <div id="joystick-zone">
+    <div id="joystick-base"></div>
+    <div id="joystick-thumb"></div>
+  </div>
+  <div id="fire-btn">FIRE</div>
+</div>
+
+<div id="game-over">
+  <h1>💥 GAME OVER</h1>
+  <div style="color:#aaa;font-size:16px;">Final Score</div>
+  <div class="final-score" id="final-score">0</div>
+  <div style="color:#ffaa00;font-size:14px;" id="planes-destroyed"></div>
+  <button id="restart-btn">PLAY AGAIN</button>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+
+// ──────────────────────────────────────
+// SCENE SETUP
+// ──────────────────────────────────────
+const scene = new THREE.Scene();
+
+// Gradient sky
+const canvas2d = document.createElement('canvas');
+canvas2d.width = 2; canvas2d.height = 512;
+const ctx2d = canvas2d.getContext('2d');
+const gradient = ctx2d.createLinearGradient(0,0,0,512);
+gradient.addColorStop(0, '#1a2a6c');
+gradient.addColorStop(0.3, '#3a7bd5');
+gradient.addColorStop(0.6, '#7ec8e3');
+gradient.addColorStop(0.85, '#c3e0e5');
+gradient.addColorStop(1, '#e8d5b7');
+ctx2d.fillStyle = gradient;
+ctx2d.fillRect(0,0,2,512);
+const skyTex = new THREE.CanvasTexture(canvas2d);
+scene.background = skyTex;
+scene.fog = new THREE.FogExp2(0x7ec8e3, 0.00008);
+
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.5, 500);
+camera.position.set(20, 8, 25);
+camera.lookAt(0, 2, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+document.body.appendChild(renderer.domElement);
+
+// ──────────────────────────────────────
+// LIGHTING
+// ──────────────────────────────────────
+const ambientLight = new THREE.AmbientLight(0x8899cc, 0.6);
+scene.add(ambientLight);
+
+const sunLight = new THREE.DirectionalLight(0xffeedd, 3.5);
+sunLight.position.set(30, 40, 10);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.width = 2048;
+sunLight.shadow.mapSize.height = 2048;
+sunLight.shadow.camera.near = 0.5;
+sunLight.shadow.camera.far = 120;
+sunLight.shadow.camera.left = -50;
+sunLight.shadow.camera.right = 50;
+sunLight.shadow.camera.top = 50;
+sunLight.shadow.camera.bottom = -10;
+sunLight.shadow.bias = -0.0001;
+scene.add(sunLight);
+
+const hemiLight = new THREE.HemisphereLight(0x87CEEB, 0x8B7355, 0.5);
+scene.add(hemiLight);
+
+// ──────────────────────────────────────
+// GROUND
+// ──────────────────────────────────────
+const groundCanvas = document.createElement('canvas');
+groundCanvas.width = 512; groundCanvas.height = 512;
+const gctx = groundCanvas.getContext('2d');
+gctx.fillStyle = '#5a8a3c';
+gctx.fillRect(0,0,512,512);
+for (let i = 0; i < 3000; i++) {
+  const x = Math.random() * 512, y = Math.random() * 512;
+  const shade = 70 + Math.random() * 40;
+  gctx.fillStyle = `rgb(${shade+20},${shade+50},${shade-10})`;
+  gctx.fillRect(x,y,2+Math.random()*3,2+Math.random()*3);
+}
+const groundTex = new THREE.CanvasTexture(groundCanvas);
+groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping;
+groundTex.repeat.set(8, 8);
+
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(100, 100),
+  new THREE.MeshStandardMaterial({ map: groundTex, roughness: 0.9, metalness: 0.05 })
+);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -0.1;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// Grid lines for depth
+const gridHelper = new THREE.PolarGridHelper(40, 40, 20, 128, 0x444444, 0x333333);
+gridHelper.position.y = 0.01;
+scene.add(gridHelper);
+
+// Rocks / scenery
+const rockMat = new THREE.MeshStandardMaterial({ color: 0x888877, roughness: 0.8 });
+for (let i = 0; i < 15; i++) {
+  const rock = new THREE.Mesh(new THREE.IcosahedronGeometry(0.3+Math.random()*0.8, 1), rockMat);
+  const angle = Math.random() * Math.PI * 2;
+  const dist = 8 + Math.random() * 25;
+  rock.position.set(Math.cos(angle)*dist, -0.2, Math.sin(angle)*dist);
+  rock.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, 0);
+  rock.scale.setScalar(0.5+Math.random()*0.8);
+  rock.castShadow = true; rock.receiveShadow = true;
+  scene.add(rock);
+}
+
+// Trees
+const treeTrunkMat = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
+const treeLeafMat = new THREE.MeshStandardMaterial({ color: 0x2d8a2d, roughness: 0.9 });
+for (let i = 0; i < 20; i++) {
+  const treeGroup = new THREE.Group();
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 1.5, 6), treeTrunkMat);
+  trunk.position.y = 0.75; trunk.castShadow = true;
+  treeGroup.add(trunk);
+  const leaves = new THREE.Mesh(new THREE.ConeGeometry(0.6, 1.8, 8), treeLeafMat);
+  leaves.position.y = 2.0; leaves.castShadow = true;
+  treeGroup.add(leaves);
+  const leaves2 = new THREE.Mesh(new THREE.ConeGeometry(0.45, 1.4, 8), treeLeafMat);
+  leaves2.position.y = 3.0; leaves2.castShadow = true;
+  treeGroup.add(leaves2);
+  const angle = Math.random() * Math.PI * 2;
+  const dist = 15 + Math.random() * 30;
+  treeGroup.position.set(Math.cos(angle)*dist, 0, Math.sin(angle)*dist);
+  treeGroup.scale.setScalar(0.7+Math.random()*0.8);
+  scene.add(treeGroup);
+}
+
+// ──────────────────────────────────────
+// TANK MODEL
+// ──────────────────────────────────────
+const tankGroup = new THREE.Group();
+
+const bodyMat = new THREE.MeshStandardMaterial({ color: 0x4a7a3a, roughness: 0.5, metalness: 0.3 });
+const trackMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.9, metalness: 0.1 });
+
+const body = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.6, 3.0), bodyMat);
+body.position.y = 0.6; body.castShadow = true; body.receiveShadow = true;
+tankGroup.add(body);
+
+const trackL = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.45, 3.2), trackMat);
+trackL.position.set(-1.05, 0.35, 0); trackL.castShadow = true;
+tankGroup.add(trackL);
+const trackR = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.45, 3.2), trackMat);
+trackR.position.set(1.05, 0.35, 0); trackR.castShadow = true;
+tankGroup.add(trackR);
+
+for (let s = -1; s <= 1; s += 1) {
+  for (let z = -1.2; z <= 1.2; z += 0.8) {
+    const wheel = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.2, 0.2, 0.1, 8),
+      new THREE.MeshStandardMaterial({ color: 0x555555, roughness: 0.7 })
+    );
+    wheel.rotation.z = Math.PI/2;
+    wheel.position.set(s * 1.2, 0.28, z);
+    wheel.castShadow = true;
+    tankGroup.add(wheel);
+  }
+}
+
+const turretGroup = new THREE.Group();
+turretGroup.position.y = 1.1;
+
+const turretBase = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.9, 0.5, 12), bodyMat);
+turretBase.castShadow = true;
+turretGroup.add(turretBase);
+
+const turretTop = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.7, 0.5, 12), bodyMat);
+turretTop.position.y = 0.4; turretTop.castShadow = true;
+turretGroup.add(turretTop);
+
+const barrelGroup = new THREE.Group();
+barrelGroup.position.y = 0.7;
+
+const barrelMat = new THREE.MeshStandardMaterial({ color: 0x555555, roughness: 0.4, metalness: 0.7 });
+const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 2.5, 8), barrelMat);
+barrel.rotation.x = Math.PI / 2;
+barrel.position.z = 1.2;
+barrel.castShadow = true;
+barrelGroup.add(barrel);
+
+const muzzleBrake = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.1, 0.4, 8), barrelMat);
+muzzleBrake.rotation.x = Math.PI / 2;
+muzzleBrake.position.z = 2.5;
+muzzleBrake.castShadow = true;
+barrelGroup.add(muzzleBrake);
+
+turretGroup.add(barrelGroup);
+tankGroup.add(turretGroup);
+
+tankGroup.position.set(0, 0, -2);
+scene.add(tankGroup);
+
+// ──────────────────────────────────────
+// GAME STATE
+// ──────────────────────────────────────
+let score = 0;
+let comboCount = 0;
+let comboTimer = 0;
+let gameTime = 0;
+let gameRunning = true;
+const projectiles = [];
+const airplanes = [];
+const particles = [];
+const explosionGroups = [];
+
+const planeColors = [0xff4444, 0x4488ff, 0xffaa00, 0x44ff44, 0xff44ff, 0xffff44, 0x44ffff];
+
+// ──────────────────────────────────────
+// CREATE AIRPLANE
+// ──────────────────────────────────────
+function createAirplane(color) {
+  const group = new THREE.Group();
+  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.3, metalness: 0.5, emissive: color, emissiveIntensity: 0.15 });
+
+  const fuse = new THREE.Mesh(new THREE.ConeGeometry(0.3, 2.5, 8, 4), mat);
+  fuse.rotation.x = -Math.PI / 2;
+  fuse.position.z = 0;
+  fuse.castShadow = true;
+  group.add(fuse);
+
+  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.25, 8, 4), mat);
+  nose.position.z = 1.2; nose.castShadow = true;
+  group.add(nose);
+
+  const wing = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.08, 0.8), mat);
+  wing.position.set(0, 0, -0.3); wing.castShadow = true;
+  group.add(wing);
+
+  const tailH = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.05, 0.4), mat);
+  tailH.position.set(0, 0, -1.1); tailH.castShadow = true;
+  group.add(tailH);
+
+  const tailV = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.6, 0.5), mat);
+  tailV.position.set(0, 0.3, -1.1); tailV.castShadow = true;
+  group.add(tailV);
+
+  const engineGlow = new THREE.Mesh(
+    new THREE.SphereGeometry(0.15, 8, 4),
+    new THREE.MeshBasicMaterial({ color: 0xffaa00 })
+  );
+  engineGlow.position.z = -1.3;
+  group.add(engineGlow);
+
+  group.scale.setScalar(0.6 + Math.random() * 0.3);
+  return group;
+}
+
+// ──────────────────────────────────────
+// EXPLOSION
+// ──────────────────────────────────────
+function createExplosion(position, color) {
+  const count = 40;
+  const group = { particles: [], life: 1.5, age: 0 };
+
+  for (let i = 0; i < count; i++) {
+    const geo = new THREE.SphereGeometry(0.08 + Math.random() * 0.2, 4, 4);
+    const colors = [0xff4400, 0xff8800, 0xffcc00, 0xffff00, 0xff0000, 0xff6600, color || 0xffffff];
+    const mat = new THREE.MeshBasicMaterial({ color: colors[Math.floor(Math.random()*colors.length)] });
+    const particle = new THREE.Mesh(geo, mat);
+
+    const spread = 1.5;
+    particle.position.copy(position);
+    particle.position.x += (Math.random()-0.5) * spread;
+    particle.position.y += (Math.random()-0.5) * spread;
+    particle.position.z += (Math.random()-0.5) * spread;
+
+    const velocity = new THREE.Vector3(
+      (Math.random()-0.5) * 6,
+      Math.random() * 5 + 2,
+      (Math.random()-0.5) * 6
+    );
+
+    scene.add(particle);
+    group.particles.push({ mesh: particle, velocity, rotSpeed: Math.random()*10 });
+  }
+
+  const light = new THREE.PointLight(color || 0xff6600, 3, 8);
+  light.position.copy(position);
+  scene.add(light);
+  group.light = light;
+
+  explosionGroups.push(group);
+}
+
+// ──────────────────────────────────────
+// SPAWN AIRPLANE
+// ──────────────────────────────────────
+function spawnAirplane() {
+  if (!gameRunning) return;
+
+  const color = planeColors[Math.floor(Math.random() * planeColors.length)];
+  const plane = createAirplane(color);
+  const altitude = 6 + Math.random() * 15;
+  const speed = 4 + Math.random() * 8;
+
+  const pathType = Math.floor(Math.random() * 5);
+  let startX, startZ, dirX, dirZ, orbitCenter, orbitRadius, orbitSpeed, orbitPhase;
+
+  switch(pathType) {
+    case 0:
+      const side = Math.random() > 0.5 ? 1 : -1;
+      startX = side * 35;
+      startZ = (Math.random() - 0.5) * 30;
+      dirX = -side;
+      dirZ = (Math.random() - 0.5) * 0.3;
+      break;
+    case 1:
+      startX = -30 + Math.random() * 10;
+      startZ = -30;
+      dirX = 0.6;
+      dirZ = 0.8;
+      break;
+    case 2:
+      startX = (Math.random()-0.5) * 20;
+      startZ = -35;
+      dirX = (Math.random()-0.5) * 0.2;
+      dirZ = 1;
+      break;
+    case 3:
+      startX = (Math.random() > 0.5 ? 1 : -1) * 35;
+      startZ = -15 + Math.random() * 30;
+      dirX = startX > 0 ? -0.5 : 0.5;
+      dirZ = (Math.random()-0.5) * 0.3;
+      break;
+    case 4:
+      orbitCenter = new THREE.Vector3((Math.random()-0.5)*10, altitude, 0);
+      orbitRadius = 8 + Math.random() * 12;
+      orbitSpeed = 0.5 + Math.random() * 1.5;
+      orbitPhase = Math.random() * Math.PI * 2;
+      break;
+  }
+
+  plane.position.set(startX || 0, altitude, startZ || 0);
+  const bankAngle = (Math.random() - 0.5) * 0.3;
+  if (dirX) plane.rotation.z = bankAngle;
+  scene.add(plane);
+
+  airplanes.push({
+    mesh: plane, speed, altitude, pathType,
+    dirX: dirX || 0, dirZ: dirZ || 0,
+    orbitCenter, orbitRadius, orbitSpeed, orbitPhase,
+    alive: true, color, hitCount: 0,
+  });
+}
+
+// ──────────────────────────────────────
+// FIRE
+// ──────────────────────────────────────
+function fireProjectile() {
+  if (!gameRunning) return;
+
+  const barrelWorldPos = new THREE.Vector3();
+  barrel.getWorldPosition(barrelWorldPos);
+
+  const barrelDir = new THREE.Vector3(0, 0, 1);
+  barrelDir.applyQuaternion(barrel.getWorldQuaternion(new THREE.Quaternion()));
+
+  const speed = 25;
+  const velocity = barrelDir.clone().multiplyScalar(speed);
+
+  const projGeo = new THREE.SphereGeometry(0.18, 8, 8);
+  const projMat = new THREE.MeshStandardMaterial({ color: 0xffcc00, emissive: 0xff8800, emissiveIntensity: 0.8, roughness: 0.2 });
+  const projMesh = new THREE.Mesh(projGeo, projMat);
+  projMesh.position.copy(barrelWorldPos).add(barrelDir.clone().multiplyScalar(0.3));
+  projMesh.castShadow = true;
+  scene.add(projMesh);
+
+  const trailPoints = [projMesh.position.clone()];
+  const trailGeo = new THREE.BufferGeometry();
+  const trailMat = new THREE.LineBasicMaterial({ color: 0xff8800, transparent: true, opacity: 0.6, linewidth: 1 });
+  const trailLine = new THREE.Line(trailGeo, trailMat);
+  scene.add(trailLine);
+
+  const flashGeo = new THREE.SphereGeometry(0.3, 8, 8);
+  const flashMat = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.8 });
+  const flash = new THREE.Mesh(flashGeo, flashMat);
+  flash.position.copy(barrelWorldPos);
+  scene.add(flash);
+  projectiles.push({
+    mesh: projMesh, velocity, trailPoints, trailLine, age: 0, flash, flashAge: 0,
+  });
+}
+
+// ──────────────────────────────────────
+// MOBILE TOUCH CONTROLS
+// ──────────────────────────────────────
+const mouse = new THREE.Vector2();
+const mouseWorld = new THREE.Vector3();
+let isFiring = false;
+let lastFireTime = 0;
+const FIRE_COOLDOWN = 0.25;
+
+// Joystick state
+let joystickActive = false;
+let joystickId = null;
+let joystickCenterX = 0, joystickCenterY = 0;
+let joystickDX = 0, joystickDY = 0;
+const joystickMaxRadius = 45;
+
+const joystickZone = document.getElementById('joystick-zone');
+const joystickThumb = document.getElementById('joystick-thumb');
+const fireBtn = document.getElementById('fire-btn');
+
+// Reset joystick visually
+function resetJoystick() {
+  joystickThumb.style.transform = 'translate(-50%, -50%)';
+  joystickDX = 0;
+  joystickDY = 0;
+}
+
+// Joystick touch handlers
+joystickZone.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  const touch = e.changedTouches[0];
+  joystickActive = true;
+  joystickId = touch.identifier;
+  const rect = joystickZone.getBoundingClientRect();
+  joystickCenterX = rect.left + rect.width / 2;
+  joystickCenterY = rect.top + rect.height / 2;
+}, { passive: false });
+
+joystickZone.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  for (let i = 0; i < e.changedTouches.length; i++) {
+    const touch = e.changedTouches[i];
+    if (touch.identifier === joystickId) {
+      let dx = touch.clientX - joystickCenterX;
+      let dy = touch.clientY - joystickCenterY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist > joystickMaxRadius) {
+        dx = dx / dist * joystickMaxRadius;
+        dy = dy / dist * joystickMaxRadius;
+      }
+      joystickThumb.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+      joystickDX = dx / joystickMaxRadius;
+      joystickDY = dy / joystickMaxRadius;
+    }
+  }
+}, { passive: false });
+
+joystickZone.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  for (let i = 0; i < e.changedTouches.length; i++) {
+    if (e.changedTouches[i].identifier === joystickId) {
+      joystickActive = false;
+      joystickId = null;
+      resetJoystick();
+    }
+  }
+}, { passive: false });
+
+joystickZone.addEventListener('touchcancel', (e) => {
+  joystickActive = false;
+  joystickId = null;
+  resetJoystick();
+});
+
+// Fire button
+fireBtn.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  isFiring = true;
+});
+fireBtn.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  isFiring = false;
+});
+fireBtn.addEventListener('touchcancel', () => {
+  isFiring = false;
+});
+
+// Also support mouse for desktop testing
+fireBtn.addEventListener('mousedown', () => { isFiring = true; });
+fireBtn.addEventListener('mouseup', () => { isFiring = false; });
+fireBtn.addEventListener('mouseleave', () => { isFiring = false; });
+
+// Joystick mouse fallback for desktop testing
+joystickZone.addEventListener('mousedown', (e) => {
+  e.preventDefault();
+  joystickActive = true;
+  joystickCenterX = e.clientX;
+  joystickCenterY = e.clientY;
+  const mousemoveHandler = (e2) => {
+    if (!joystickActive) return;
+    let dx = e2.clientX - joystickCenterX;
+    let dy = e2.clientY - joystickCenterY;
+    const dist = Math.sqrt(dx*dx+dy*dy);
+    if (dist > joystickMaxRadius) { dx = dx/dist*joystickMaxRadius; dy = dy/dist*joystickMaxRadius; }
+    joystickThumb.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    joystickDX = dx / joystickMaxRadius;
+    joystickDY = dy / joystickMaxRadius;
+  };
+  const mouseupHandler = () => {
+    joystickActive = false;
+    resetJoystick();
+    document.removeEventListener('mousemove', mousemoveHandler);
+    document.removeEventListener('mouseup', mouseupHandler);
+  };
+  document.addEventListener('mousemove', mousemoveHandler);
+  document.addEventListener('mouseup', mouseupHandler);
+});
+
+// Prevent body scrolling on all touches
+document.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+}, { passive: false });
+
+// Keyboard support (for desktop testing)
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); isFiring = true; }
+  if (e.code === 'KeyW') { joystickDY = 1; }
+  if (e.code === 'KeyS') { joystickDY = -1; }
+  if (e.code === 'KeyA') { joystickDX = -1; }
+  if (e.code === 'KeyD') { joystickDX = 1; }
+});
+window.addEventListener('keyup', (e) => {
+  if (e.code === 'Space') { isFiring = false; }
+  if (e.code === 'KeyW' || e.code === 'KeyS') { joystickDY = 0; }
+  if (e.code === 'KeyA' || e.code === 'KeyD') { joystickDX = 0; }
+});
+
+// ──────────────────────────────────────
+// Raycaster for aiming
+// ──────────────────────────────────────
+const raycaster = new THREE.Raycaster();
+const aimPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+
+// ──────────────────────────────────────
+// UI
+// ──────────────────────────────────────
+const scoreValueEl = document.getElementById('score-value');
+const comboEl = document.getElementById('combo');
+const gameOverEl = document.getElementById('game-over');
+const finalScoreEl = document.getElementById('final-score');
+const planesDestroyedEl = document.getElementById('planes-destroyed');
+const restartBtn = document.getElementById('restart-btn');
+
+restartBtn.addEventListener('click', () => {
+  gameOverEl.style.display = 'none';
+  gameRunning = true;
+  gameTime = 0;
+  resetGame();
+});
+
+restartBtn.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  gameOverEl.style.display = 'none';
+  gameRunning = true;
+  gameTime = 0;
+  resetGame();
+});
+
+function resetGame() {
+  score = 0; comboCount = 0; comboTimer = 0;
+  scoreValueEl.textContent = '0';
+  comboEl.style.display = 'none';
+  for (const p of projectiles) { scene.remove(p.mesh); scene.remove(p.trailLine); scene.remove(p.flash); }
+  projectiles.length = 0;
+  for (const a of airplanes) { scene.remove(a.mesh); }
+  airplanes.length = 0;
+  for (const g of explosionGroups) {
+    for (const p of g.particles) scene.remove(p.mesh);
+    if (g.light) scene.remove(g.light);
+  }
+  explosionGroups.length = 0;
+  turretGroup.rotation.y = 0;
+  barrelGroup.rotation.x = 0;
+  for (let i = 0; i < 3; i++) spawnAirplane();
+}
+
+// ──────────────────────────────────────
+// GAME LOOP
+// ──────────────────────────────────────
+const clock = new THREE.Clock();
+let spawnTimer = 0;
+const SPAWN_INTERVAL = 2.5;
+
+function update(delta) {
+  if (!gameRunning) return;
+  gameTime += delta;
+
+  // ── Joystick-based aiming ──────────
+  // Convert joystick input to world-space target point
+  const tankPos = tankGroup.position.clone();
+  const lookDir = new THREE.Vector3(0, 0, 1);
+  lookDir.applyQuaternion(camera.quaternion);
+  lookDir.y = 0; // project to horizontal plane
+  
+  const rightDir = new THREE.Vector3(1, 0, 0);
+  rightDir.applyQuaternion(camera.quaternion);
+  rightDir.y = 0;
+
+  // Target point = tank position + joystick direction offset, then project far away
+  const aimDist = 30;
+  const targetX = tankPos.x + joystickDX * aimDist;
+  const targetZ = tankPos.z + joystickDY * aimDist + 5; // offset forward
+  
+  const targetPoint = new THREE.Vector3(targetX, 3, targetZ);
+  
+  // Rotate turret towards target
+  const dx = targetPoint.x - tankPos.x;
+  const dz = targetPoint.z - tankPos.z;
+  const targetAngle = Math.atan2(dx, dz);
+  const currentAngle = turretGroup.rotation.y;
+  let diff = targetAngle - currentAngle;
+  while (diff > Math.PI) diff -= Math.PI * 2;
+  while (diff < -Math.PI) diff += Math.PI * 2;
+  turretGroup.rotation.y += diff * Math.min(8 * delta, 1);
+
+  const dist = Math.sqrt(dx * dx + dz * dz);
+  const dy = targetPoint.y - turretGroup.position.y - tankPos.y;
+  let elevAngle = Math.atan2(dy, dist + 0.01);
+  elevAngle = Math.max(-0.3, Math.min(elevAngle, 0.7));
+  const currentElev = barrelGroup.rotation.x;
+  let ediff = elevAngle - currentElev;
+  barrelGroup.rotation.x += ediff * Math.min(6 * delta, 1);
+
+  // ── Fire ────────────────────────────
+  if (isFiring && gameTime - lastFireTime > FIRE_COOLDOWN) {
+    fireProjectile();
+    lastFireTime = gameTime;
+  }
+
+  // ── Spawn airplanes ─────────────────
+  spawnTimer += delta;
+  if (spawnTimer > SPAWN_INTERVAL) {
+    spawnTimer = 0;
+    const activePlanes = airplanes.filter(a => a.alive).length;
+    const maxPlanes = Math.min(6, 3 + Math.floor(gameTime / 30));
+    if (activePlanes < maxPlanes) spawnAirplane();
+  }
+
+  // ── Update projectiles ──────────────
+  for (let i = projectiles.length - 1; i >= 0; i--) {
+    const p = projectiles[i];
+    p.age += delta;
+    if (p.flashAge < 0.2) {
+      p.flashAge += delta;
+      p.flash.material.opacity = Math.max(0, 0.8 * (1 - p.flashAge / 0.2));
+      p.flash.scale.setScalar(1 + p.flashAge * 10);
+    } else if (p.flash) {
+      scene.remove(p.flash);
+      p.flash = null;
+    }
+    p.mesh.position.add(p.velocity.clone().multiplyScalar(delta));
+    p.velocity.y -= 2.0 * delta;
+    p.trailPoints.push(p.mesh.position.clone());
+    if (p.trailPoints.length > 15) p.trailPoints.shift();
+    const trailGeo = new THREE.BufferGeometry().setFromPoints(p.trailPoints);
+    p.trailLine.geometry.dispose();
+    p.trailLine.geometry = trailGeo;
+    p.trailLine.material.opacity = Math.max(0.1, 0.6 * (1 - p.age / 4.0));
+    if (p.age > 4 || p.mesh.position.y < -5 || p.mesh.position.y > 40 ||
+        Math.abs(p.mesh.position.x) > 50 || Math.abs(p.mesh.position.z) > 50) {
+      scene.remove(p.mesh); scene.remove(p.trailLine);
+      if (p.flash) scene.remove(p.flash);
+      projectiles.splice(i, 1);
+    }
+  }
+
+  // ── Update airplanes & collision ────
+  for (let i = airplanes.length - 1; i >= 0; i--) {
+    const a = airplanes[i];
+    if (!a.alive) {
+      a.mesh.position.y -= 5 * delta;
+      a.mesh.rotation.x += 3 * delta;
+      a.mesh.rotation.z += 2 * delta;
+      if (a.mesh.position.y < -3) { scene.remove(a.mesh); airplanes.splice(i, 1); }
+      continue;
+    }
+    switch (a.pathType) {
+      case 4:
+        a.orbitPhase += a.orbitSpeed * delta;
+        a.mesh.position.x = a.orbitCenter.x + Math.cos(a.orbitPhase) * a.orbitRadius;
+        a.mesh.position.z = a.orbitCenter.z + Math.sin(a.orbitPhase) * a.orbitRadius;
+        a.mesh.position.y = a.altitude;
+        a.mesh.rotation.y = -a.orbitPhase - Math.PI/2;
+        break;
+      default:
+        a.mesh.position.x += a.dirX * a.speed * delta;
+        a.mesh.position.z += a.dirZ * a.speed * delta;
+        if (a.pathType === 3) a.mesh.position.y = a.altitude + Math.sin(gameTime * 1.5) * 3;
+        if (a.dirX !== 0 || a.dirZ !== 0) a.mesh.rotation.y = Math.atan2(a.dirX, a.dirZ);
+        break;
+    }
+    if (Math.abs(a.mesh.position.x) > 40 || Math.abs(a.mesh.position.z) > 40) {
+      scene.remove(a.mesh); airplanes.splice(i, 1);
+    }
+  }
+
+  // ── Collision detection ─────────────
+  for (let pi = projectiles.length - 1; pi >= 0; pi--) {
+    const proj = projectiles[pi];
+    const pp = proj.mesh.position;
+    for (let ai = airplanes.length - 1; ai >= 0; ai--) {
+      const plane = airplanes[ai];
+      if (!plane.alive) continue;
+      const ap = plane.mesh.position;
+      const dist = pp.distanceTo(ap);
+      if (dist < 2.0) {
+        createExplosion(ap.clone(), plane.color);
+        plane.alive = false;
+        scene.remove(proj.mesh); scene.remove(proj.trailLine);
+        if (proj.flash) scene.remove(proj.flash);
+        projectiles.splice(pi, 1);
+        comboCount++;
+        comboTimer = 2.0;
+        const bonusPoints = Math.floor(comboCount / 3) * 5;
+        const basePoints = 10 + bonusPoints;
+        score += basePoints;
+        scoreValueEl.textContent = score;
+        if (comboCount > 1) {
+          comboEl.style.display = 'block';
+          comboEl.textContent = `\u{1F525} ${comboCount}x COMBO! +${basePoints}`;
+        }
+        break;
+      }
+    }
+  }
+
+  // ── Combo timer ─────────────────────
+  if (comboTimer > 0) {
+    comboTimer -= delta;
+    if (comboTimer <= 0) { comboCount = 0; comboEl.style.display = 'none'; }
+  }
+
+  // ── Update explosions ───────────────
+  for (let i = explosionGroups.length - 1; i >= 0; i--) {
+    const g = explosionGroups[i];
+    g.age += delta;
+    const alpha = Math.max(0, 1 - g.age / g.life);
+    for (const p of g.particles) {
+      p.mesh.position.add(p.velocity.clone().multiplyScalar(delta));
+      p.velocity.y -= 8 * delta;
+      p.mesh.material.opacity = alpha;
+      p.mesh.scale.setScalar(alpha);
+      p.mesh.rotation.x += p.rotSpeed * delta;
+      p.mesh.rotation.y += p.rotSpeed * 0.7 * delta;
+    }
+    if (g.light) g.light.intensity = 3 * alpha;
+    if (g.age > g.life) {
+      for (const p of g.particles) scene.remove(p.mesh);
+      if (g.light) scene.remove(g.light);
+      explosionGroups.splice(i, 1);
+    }
+  }
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  const delta = Math.min(clock.getDelta(), 0.1);
+  update(delta);
+  renderer.render(scene, camera);
+}
+
+// ──────────────────────────────────────
+// RESIZE
+// ──────────────────────────────────────
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Handle orientation change
+window.addEventListener('orientationchange', () => {
+  setTimeout(() => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }, 300);
+});
+
+// ──────────────────────────────────────
+// CAMERA + START
+// ──────────────────────────────────────
+let cameraAngle = 0;
+
+function animateWithCamera() {
+  requestAnimationFrame(animateWithCamera);
+  const delta = Math.min(clock.getDelta(), 0.1);
+  cameraAngle += delta * 0.15;
+  const camDist = 28;
+  const camHeight = 10;
+  const lookTarget = tankGroup.position.clone().add(new THREE.Vector3(0, 2, 5));
+  camera.position.set(
+    lookTarget.x + Math.sin(cameraAngle) * camDist * 0.3,
+    lookTarget.y + camHeight,
+    lookTarget.z + Math.cos(cameraAngle) * camDist * 0.3
+  );
+  camera.position.lerp(
+    new THREE.Vector3(lookTarget.x + Math.sin(cameraAngle * 0.5) * 2, lookTarget.y + camHeight, lookTarget.z - camDist * 0.6),
+    delta * 0.5
+  );
+  camera.lookAt(lookTarget.x, lookTarget.y + 2, lookTarget.z + 8);
+  update(delta);
+  renderer.render(scene, camera);
+}
+
+for (let i = 0; i < 3; i++) spawnAirplane();
+animateWithCamera();
+
+console.log('🟢 Tank vs Plane 3D MOBILE Ready!');
+console.log('🎮 Joystick: Aim | Fire Button: Shoot');
+</script>
+</body>
+</html>

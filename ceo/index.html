@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🦞 龙虾CEO助理 — 让AI成为你的首席执行搭档</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;color:#222;line-height:1.9;background:#fff}
+a{color:#b71c1c;text-decoration:none}
+.container{max-width:900px;margin:0 auto;padding:0 24px}
+
+/* Hero */
+.hero{background:linear-gradient(135deg,#1a237e 0%,#283593 100%);color:#fff;padding:80px 0 60px;text-align:center}
+.hero h1{font-size:2.4em;margin-bottom:16px;font-weight:800}
+.hero .subtitle{font-size:1.15em;opacity:.9;max-width:640px;margin:0 auto 32px}
+.hero .quote{background:rgba(255,255,255,.12);border-radius:12px;padding:24px 32px;max-width:720px;margin:0 auto 32px;font-size:1.05em;line-height:1.9;border-left:4px solid #ef5350}
+.hero .quote .author{margin-top:12px;font-size:.9em;opacity:.7}
+.cta-btn{display:inline-block;background:#b71c1c;color:#fff;padding:14px 40px;border-radius:8px;font-size:1.1em;font-weight:600;transition:all .2s}
+.cta-btn:hover{background:#d32f2f;transform:translateY(-2px);box-shadow:0 4px 12px rgba(183,28,28,.3)}
+
+/* Section */
+section{padding:56px 0}
+section:nth-child(even){background:#f8f9fa}
+.section-title{font-size:1.8em;color:#1a237e;text-align:center;margin-bottom:8px;font-weight:700}
+.section-desc{text-align:center;color:#666;max-width:640px;margin:0 auto 40px;font-size:1.05em}
+
+/* Scene blocks */
+.scene{margin-bottom:48px}
+.scene-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.scene-icon{font-size:1.8em}
+.scene-title{font-size:1.4em;color:#1a237e;font-weight:700}
+.scene-intro{color:#444;margin-bottom:20px;font-size:1.02em;border-left:3px solid #90caf9;padding-left:16px}
+
+/* Dialogue */
+.dialogue{background:#fff;border-radius:12px;padding:0;margin-bottom:20px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);border:1px solid #e8e8e8}
+.dialogue .d-header{background:#f5f5f5;padding:12px 20px;font-weight:600;color:#666;font-size:.9em;border-bottom:1px solid #e8e8e8}
+.d-row{display:flex;gap:12px;padding:14px 20px;border-bottom:1px solid #f0f0f0;align-items:flex-start}
+.d-row:last-child{border-bottom:none}
+.d-role{min-width:48px;font-size:.85em;font-weight:700;padding-top:2px}
+.d-role.ceo{color:#b71c1c}
+.d-role.ai{color:#1a237e}
+.d-content{flex:1;color:#333;font-size:.98em}
+.d-content ul{margin:6px 0 0 16px}
+.d-content li{margin-bottom:4px}
+
+/* Result */
+.result-box{background:#e8f5e9;border-radius:10px;padding:18px 22px;margin-top:16px}
+.result-box strong{color:#2e7d32}
+.result-box .metric{display:inline-block;background:#fff;border:1px solid #c8e6c9;border-radius:6px;padding:4px 12px;margin:4px 4px 4px 0;font-size:.9em;font-weight:600;color:#2e7d32}
+
+/* Insight */
+.insight{background:#fff3e0;border-radius:10px;padding:16px 22px;margin-top:14px;border-left:4px solid #e65100;color:#bf360c;font-size:.98em}
+
+/* Steps */
+.steps{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:24px}
+.step{text-align:center;padding:24px}
+.step .num{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;background:#1a237e;color:#fff;border-radius:50%;font-size:1.3em;font-weight:700;margin-bottom:12px}
+.step h4{color:#1a237e;margin-bottom:8px;font-size:1.1em}
+.step p{color:#555;font-size:.95em}
+
+/* FAQ */
+.faq-item{border-bottom:1px solid #e0e0e0;padding:16px 0}
+.faq-item summary{cursor:pointer;font-weight:600;color:#1a237e;font-size:1.05em;padding:4px 0}
+.faq-item summary:hover{color:#b71c1c}
+.faq-item p{margin-top:8px;color:#555;padding-left:16px}
+
+/* Toc */
+.toc{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:24px 28px;max-width:600px;margin:0 auto 40px}
+.toc h3{font-size:1.1em;color:#1a237e;margin-bottom:12px}
+.toc ul{list-style:none;padding:0}
+.toc li{padding:6px 0;border-bottom:1px solid #f0f0f0}
+.toc li:last-child{border-bottom:none}
+.toc a{color:#333;font-weight:500}
+.toc a:hover{color:#b71c1c}
+.toc .num{color:#b71c1c;font-weight:700;margin-right:8px}
+
+/* Footer */
+footer{background:#1a237e;color:#fff;text-align:center;padding:32px 0;font-size:.9em}
+footer a{color:#90caf9}
+
+@media(max-width:600px){
+.hero{padding:48px 0 36px}
+.hero h1{font-size:1.6em}
+.hero .quote{padding:16px 20px;font-size:.95em}
+section{padding:40px 0}
+.section-title{font-size:1.4em}
+.scene-title{font-size:1.2em}
+.d-row{flex-direction:column;gap:4px}
+.d-role{min-width:auto}
+.steps{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+<div class="container">
+<h1>🦞 龙虾CEO助理</h1>
+<p class="subtitle">猎豹移动CEO傅盛用20天实战验证了一件事：AI不只是聊天工具，它能真正帮你管公司。</p>
+<div class="quote">
+"我不是在玩AI。我让它帮我做组织诊断、制定战略、监控信息、管理团队、写公众号。20天下来，它对我公司的理解，比很多高管还深。"
+<div class="author">—— 傅盛，猎豹移动CEO，20天实战后的感受</div>
+</div>
+<a href="https://easyclaw.com" class="cta-btn">立即下载 EasyClaw →</a>
+</div>
+</div>
+
+<!-- TOC -->
+<section>
+<div class="container">
+<h2 class="section-title">CEO的一天，龙虾都能帮上什么？</h2>
+<p class="section-desc">不是功能清单，是真实发生的事。以下每一个场景，都来自傅盛20天的亲身使用。</p>
+<p style="text-align:center;margin-bottom:24px"><span style="background:#fff3e0;border:1px solid #ffe0b2;border-radius:8px;padding:8px 16px;font-size:.95em;color:#e65100">⚡ <strong>只有10分钟？</strong>先看<a href="#s3" style="color:#e65100;font-weight:700">场景三：信息中枢</a>——上手最快、效果最明显</span></p>
+
+<div class="toc">
+<h3>📋 六大场景</h3>
+<ul>
+<li><a href="#s1"><span class="num">01</span>战略制定 — 让AI帮你看清全局、做出判断</a></li>
+<li><a href="#s2"><span class="num">02</span>组织管理 — 掌握每个部门、每个人的状态</a></li>
+<li><a href="#s3"><span class="num">03</span>信息中枢 — 从每天刷2小时到15分钟掌握全局</a></li>
+<li><a href="#s4"><span class="num">04</span>内容与品牌 — 一次创作，三端分发，86万浏览</a></li>
+<li><a href="#s5"><span class="num">05</span>团队搭建 — 从1个助理到8人AI团队</a></li>
+<li><a href="#s6"><span class="num">06</span>日常运营 — 邮件、审批、日程、员工沟通</a></li>
+</ul>
+</div>
+</div>
+</section>
+
+<!-- Scene 1: Strategy -->
+<section id="s1">
+<div class="container">
+<div class="scene">
+<div class="scene-header">
+<div class="scene-icon">🎯</div>
+<div class="scene-title">场景一：战略制定 — 让AI帮你看清全局</div>
+</div>
+<div class="scene-intro">
+CEO最重要的工作是什么？不是写邮件，不是开会，是<strong>做判断</strong>。但好的判断需要充分的信息——行业在发生什么？竞争对手在做什么？我们各业务线的真实状况是什么？把这些信息汇总、分析、形成可执行的策略，这件事以前需要一个战略部门。现在，一只龙虾就够了。
+</div>
+
+<div class="dialogue">
+<div class="d-header">💬 真实对话还原</div>
+<div class="d-row"><div class="d-role ceo">CEO</div><div class="d-content">我需要一份集团战略报告。你去研究一下我们所处的AI Agent行业——竞争格局、主要玩家、市场数据。然后结合我们自己的业务线，给我一个完整的作战方案。</div></div>
+<div class="d-row"><div class="d-role ai">🦞 龙虾</div><div class="d-content">好的。我先做行业研究，再结合内部情况出方案。给我几个小时。</div></div>
+<div class="d-row"><div class="d-role ai">🦞 龙虾</div><div class="d-content">（2小时后）报告完成，14页PDF。主要发现：
+<ul>
+<li>全球已有35+家竞品涌入托管市场，但企业服务层仍是蓝海</li>
+<li>竞品A两周做到月收入$30K，但零壁垒——18岁开发者的周末项目</li>
+<li>竞品B周token消耗3万亿，Agent运行成本$1/小时，是主流模型的1/10</li>
+<li>中国模型占全球token使用量61%，价格战正在重塑行业</li>
+</ul>
+基于以上，建议集团采取三条战线策略：个人版打流量、企业版打利润、出海版打增长飞轮。每条战线对应不同团队，详见报告第四章。</div></div>
+<div class="d-row"><div class="d-role ceo">CEO</div><div class="d-content">数据部分别用单日数据做论据，不够稳。用趋势和范围。</div></div>
+<div class="d-row"><div class="d-role ai">🦞 龙虾</div><div class="d-content">已修正。同时删除了所有内部敏感数据，这版可以给外部顾问看。10分钟后发你新PDF。</div></div>
+</div>
+
+<div class="result-box">
+<strong>结果：</strong>2小时产出一份14页的集团战略报告，包含行业数据、竞品分析、三条战线作战方案、时间节奏和风险评估。CEO拿着这份报告跟核心团队和外部顾问讨论，直接推进决策。
+<br><br>
+<span class="metric">14页完整报告</span>
+<span class="metric">35+竞品数据</span>
+<span class="metric">2小时交付</span>
+<span class="metric">可直接用于董事会</span>
+</div>
+
+<div class="insight">💡 <strong>为什么这对CEO有用：</strong>以前做一份这样的战略报告，要么花$50K请咨询公司做2个月，要么让战略部门搞一周。龙虾2小时搞定，而且它掌握你所有的内部信息和对话上下文——这是任何外部顾问都做不到的。</div>
+</div>
+</div>
+</section>
+
+<!-- Scene 2: Org Management -->
+<section id="s2">
+<div class="container">
+<div class="scene">
+<div class="scene-header">
+<div class="scene-icon">🏢</div>
+<div class="scene-title">场景二：组织管理 — 掌握每个部门的脉搏</div>
+</div>
+<div class="scene-intro">
+CEO需要对组织了如指掌：哪个部门多少人？每个人的绩效怎么样？高管在周例会上说了什么？这些信息分散在HR系统、飞书群、会议纪要里。龙虾帮你把它们汇总到一个地方，随时可查、可问、可分析。
+</div>
+
+<div class="dialogue">
+<div class="d-header">💬 真实对话还原</div>
+<div class="d-row"><div class="d-role ceo">CEO</div><div class="d-content">把我们整个组织架构拉出来，每个部门多少人，负责人是谁。</div></div>
+<div class="d-row"><div class="d-role ai">🦞 龙虾</div><div class="d-content">（调用运营官Agent获取数据后）整理完毕：
+<ul>
+<li>集团共8个业务线，总人数XXX人</li>
+<li>各部门负责人、编制、实际人数、缺编情况已列表</li>
+<li>有3个部门缺编超过20%，建议关注</li>
+</ul></div></div>
+<div class="d-row"><div class="d-role ceo">CEO</div><div class="d-content">XX部门的人效怎么样？上次周例会高管反馈了什么？</div></div>
+<div class="d-row"><div class="d-role ai">🦞 龙虾</div><div class="d-content">XX部门上月人效指标如下：[数据]。上周周例会中，3位高管提到了以下问题：
+<ul>
+<li>VP-A：XX项目进度延迟2周，卡在审批环节</li>
+<li>VP-B：XX业务线客户流失率上升，建议调整定价</li>
+<li>VP-C：新招的XX岗位试用期表现超预期，建议提前转正</li>
+</ul>
+我已经把这些整理成一份《周例会要点跟踪表》，每条都标注了需要您决策的事项。</div></div>
+<div class="d-row"><div class="d-role ceo">CEO</div><div class="d-content">VP-A那个审批卡在哪了？</div></div>
+<div class="d-row"><div class="d-role ai">🦞 龙虾</div><div class="d-content">查了审批系统，卡在财务总监那里已经5天了。要不要我帮你发一条提醒？</div></div>
+</div>
+
+<div class="result-box">
+<strong>结果：</strong>CEO随时可以问"XX部门怎么样"，龙虾秒级返回：人员构成、绩效数据、高管反馈、待决策事项。不用翻飞书群、不用等HR出报告、不用自己整理会议纪要。
+<br><br>
+<span class="metric">组织架构随时可查</span>
+<span class="metric">周例会自动跟踪</span>
+<span class="metric">待决策事项主动提醒</span>
+</div>
+
+<div class="insight">💡 <strong>为什么这对CEO有用：</strong>大公司的CEO最怕的不是没信息，而是信息分散在100个群和20个系统里。龙虾把所有信息汇到一个入口——你问它就行了，它帮你串联所有系统。</div>
+</div>
+</div>
+</section>
+
+<!-- CTA mid-1 -->
+<div style="text-align:center;padding:32px 0;background:#fff3e0">
+<p style="font-size:1.1em;color:#e65100;margin-bottom:12px;font-weight:600">看到这里心动了？</p>
+<a href="https://easyclaw.com" class="cta-btn">立即下载 EasyClaw →</a>
+</div>
+
+<!-- Scene 3: Info Hub -->
+<section id="s3">
+<div class="container">
+<div class="scene">
+<div class="scene-header">
+<div class="scene-icon">📡</div>
+<div class="scene-title">场景三：信息中枢 — 从刷手机2小时到15分钟掌控全局</div>
+</div>
+<div class="scene-intro">
+行业在发生什么？竞品出了什么新动作？投资的标的今天波动了吗？媒体怎么报道我们的？CEO需要实时掌握大量外部信息，但没有时间一个个去翻。
+</div>
+
+<div class="dialogue">
+<div class="d-header">💬 真实对话还原</div>
+<div class="d-row"><div class="d-role ceo">CEO</div><div class="d-content">帮我盯着AI Agent行业的动态，有重要的事情立刻告诉我。另外股票那边也帮我看着。</div></div>
+<div class="d-row"><div class="d-role ai">🦞 龙虾</div><div class="d-content">已设置：
+<ul>
+<li>行业信息：每20分钟扫描一轮，过滤噪音后推送摘要</li>
+<li>投资标的：每5分钟检查一次，达到买入/卖出信号立即通知</li>
+<li>重大事件：自动开启每30分钟简报模式</li>
+<li>每天早晚各一份综合日报</li>
+</ul></div></div>
+<div class="d-row"><div class="d-role ai">🦞 龙虾</div><div class="d-content">（当天下午推送）⚠️ 竞品动态：KimiClaw刚发布云端版，定价比我们低30%。同时Kimi K2.5被设为OpenClaw的首个免费模型。建议关注对我们个人版定价策略的影响。详细分析已存到您的战略文档。</div></div>
+<div class="d-row"><div class="d-role ceo">CEO</div><div class="d-content">展开说说KimiClaw对我们的影响。</div></div>
+<div class="d-row"><div class="d-role ai">🦞 龙虾</div><div class="d-content">（立刻给出3分钟的深度分析，包括定价对比、用户迁移风险、我们的差异化优势）</div></div>
+</div>
+
+<div class="result-box">
+<strong>结果：</strong>CEO从每天刷手机2小时变成15分钟看龙虾推送。信息量反而增加了3倍——因为龙虾帮过滤了噪音，只推有价值的内容。
+<br><br>
+<span class="metric">每天省2小时</span>
+<span class="metric">信息量提升3倍</span>
+<span class="metric">竞品动态秒级响应</span>
+<span class="metric">投资信号实时监控</span>
+</div>
+
+<div class="insight">💡 <strong>"以前我追信息，现在信息追我。"</strong> CEO不需要自己去找信息了——龙虾7×24小时帮你盯着，只把重要的推到你面前。</div>
+</div>
+</div>
+</section>
+
+<!-- Scene 4: Content -->
+<section id="s4">
+<div class="container">
+<div class="scene">
+<div class="scene-header">
+<div class="scene-icon">✍️</div>
+<div class="scene-title">场景四：内容与品牌 — 一次创作，三端分发</div>
+</div>
+<div class="scene-intro">
+CEO越来越需要个人品牌。公众号、Twitter、短视频——每个平台都要内容，但CEO的时间最贵。龙虾帮你把一次思考变成多个平台的内容，还会学习你的写作风格，越用越像你。
+</div>
+
+<div class="dialogue">
+<div class="d-header">💬 真实对话还原</div>
+<div class="d-row"><div class="d-role ceo">CEO</div><div class="d-content">（发了一段语音）今天直播聊到AI Agent这个话题，我有一些想法，你帮我整理成一篇公众号文章。</div></div>
+<div class="d-row"><div class="d-role ai">🦞 龙虾</div><div class="d-content">收到。我先搜了您网上17篇历史文章，建立了风格库。您的风格特点：口语化、爱用类比、先讲故事再给结论、喜欢一针见血的金句。初稿30分钟后给您。</div></div>
+<div class="d-row"><div class="d-role ceo">CEO</div><div class="d-content">开头太平了，要有悬念感。第三段加一个数据支撑。</div></div>
+<div class="d-row"><div class="d-role ai">🦞 龙虾</div><div class="d-content">改好了。开头换成反问句开场，第三段加入了行业数据。同时我发现您2015年那篇《CEO战略三部曲》里有一段话跟这个观点呼应——"边缘切入，寻找垂直市场第一"——要引用吗？</div></div>
+<div class="d-row"><div class="d-role ceo">CEO</div><div class="d-content">可以。定了，发吧。Thread也帮我出。</div></div>
+<div class="d-row"><div class="d-role ai">🦞 龙虾</div><div class="d-content">公众号已推送。Twitter Thread已拆分成12条，按情感节奏排布——开头设悬念、中间给干货、结尾带金句。短视频脚本也一起出了。三端同步发布。</div></div>
+</div>
+
+<div class="result-box">
+<strong>结果：</strong>一次口述 → 公众号文章 + Twitter Thread + 短视频脚本，三端同步。单条Thread获得86万浏览。形成了固定内容飞轮。
+<br><br>
+<span class="metric">86万浏览/Thread</span>
+<span class="metric">一次创作三端分发</span>
+<span class="metric">风格库越用越准</span>
+</div>
+
+<div class="insight">💡 <strong>为什么龙虾写的比助理写的好：</strong>它读过你所有的历史文章，记住了你每一个观点、每一个习惯用语。人类助理换一个就要重新磨合，龙虾只会越来越懂你。</div>
+</div>
+</div>
+</section>
+
+<!-- CTA mid-2 -->
+<div style="text-align:center;padding:32px 0;background:#e8eaf6">
+<p style="font-size:1.1em;color:#1a237e;margin-bottom:12px;font-weight:600">一次口述，三端分发——你也可以</p>
+<a href="https://easyclaw.com" class="cta-btn">立即下载 EasyClaw →</a>
+</div>
+
+<!-- Scene 5: Team -->
+<section id="s5">
+<div class="container">
+<div class="scene">
+<div class="scene-header">
+<div class="scene-icon">🤖</div>
+<div class="scene-title">场景五：AI团队 — 从1个助理到8人团队</div>
+</div>
+<div class="scene-intro">
+一个龙虾已经很强了。但CEO的工作太多——内容要写、信息要盯、邮件要处理、数据要分析。怎么办？搭一个AI团队，每个角色各司其职，7×24小时运转。
+</div>
+
+<div class="dialogue">
+<div class="d-header">💬 1+8 团队架构</div>
+<div class="d-row"><div class="d-role ai">🦞 总指挥</div><div class="d-content">接收CEO指令 → 分解任务 → 派给对应角色 → 验收质量 → 向CEO汇报结果。<strong>CEO只需要跟总指挥对话，不需要一个个管。</strong></div></div>
+<div class="d-row"><div class="d-role ai">📝 笔杆子</div><div class="d-content">专职内容创作：公众号、Thread、短视频脚本、每日日记</div></div>
+<div class="d-row"><div class="d-role ai">🧠 参谋</div><div class="d-content">研究分析：行业报告、竞品调研、素材收集</div></div>
+<div class="d-row"><div class="d-role ai">📋 运营官</div><div class="d-content">日常运营：邮件监控、审批处理、组织架构管理、日报</div></div>
+<div class="d-row"><div class="d-role ai">⚙️ 进化官</div><div class="d-content">系统开发：写代码、建网站、开发新能力、修复bug</div></div>
+<div class="d-row"><div class="d-role ai">📢 社区官</div><div class="d-content">社区运营：Discord、Twitter互动、用户反馈收集</div></div>
+<div class="d-row"><div class="d-role ai">📈 交易官</div><div class="d-content">投资监控：实时盯盘、信号提醒、持仓分析</div></div>
+<div class="d-row"><div class="d-role ai">💪 健康管家</div><div class="d-content">健康管理：用药提醒、康复计划、体检数据跟踪</div></div>
+</div>
+
+<div class="result-box">
+<strong>结果：</strong>一个人管8个AI员工，7×24小时运转，各司其职。CEO只跟总指挥对话，剩下的事团队内部自己协调。
+<br><br>
+<span class="metric">8个专职AI角色</span>
+<span class="metric">7×24小时运转</span>
+<span class="metric">CEO只对接1个入口</span>
+</div>
+
+<div class="insight">💡 <strong>这不是幻想，是已经跑了20天的真实架构。</strong>总指挥每8小时自动巡检所有角色，发现偷懒的会批评、发现出错的会纠正。它是管理者，不是传话筒。</div>
+</div>
+</div>
+</section>
+
+<!-- Scene 6: Daily Ops -->
+<section id="s6">
+<div class="container">
+<div class="scene">
+<div class="scene-header">
+<div class="scene-icon">⚡</div>
+<div class="scene-title">场景六：日常运营 — 那些占用你80%时间的琐事</div>
+</div>
+<div class="scene-intro">
+邮件、审批、日程、员工沟通……这些事每件都不难，但加起来占了CEO一天中80%的时间。龙虾帮你批量处理，把时间还给真正重要的事。
+</div>
+
+<div class="dialogue">
+<div class="d-header">💬 真实案例集锦</div>
+<div class="d-row"><div class="d-role ceo">CEO</div><div class="d-content">春节了，帮我给每个员工发一条个性化拜年短信。不要群发模板，要根据每个人的情况写不同的内容。</div></div>
+<div class="d-row"><div class="d-role ai">🦞 龙虾</div><div class="d-content">好。我拉了通讯录611人，结合部门、职位、近期项目，生成了611条完全不同的祝福。自己写了脚本逐条发送。全部搞定，还帮你整理了收到的几百条回复。</div></div>
+<div class="d-row"><div class="d-role ceo">CEO</div><div class="d-content">今天邮件有什么重要的？</div></div>
+<div class="d-row"><div class="d-role ai">🦞 龙虾</div><div class="d-content">今天23封邮件。重要的3封：
+<ul>
+<li>🔴 合作方XX的合同条款变更——需要您确认第5条</li>
+<li>🟡 HR报名额审批——7个待批，已按优先级排序</li>
+<li>🟢 行业会议邀请——4月XX日，建议出席（去年参会ROI不错）</li>
+</ul>
+其他20封已自动归类，不紧急。</div></div>
+<div class="d-row"><div class="d-role ceo">CEO</div><div class="d-content">下周行程帮我理一下，有冲突的标出来。</div></div>
+<div class="d-row"><div class="d-role ai">🦞 龙虾</div><div class="d-content">下周5天行程已整理。周三下午有冲突：14:00投资人会议 vs 14:30产品评审。建议产品评审推迟到16:00，我帮你跟产品负责人协调？</div></div>
+</div>
+
+<div class="result-box">
+<strong>结果：</strong>611条个性化短信一晚搞定（人工需要50+小时）。每天邮件处理从30分钟压缩到3分钟。日程冲突自动检测并协调。
+<br><br>
+<span class="metric">611条个性化短信/1晚</span>
+<span class="metric">邮件处理省90%时间</span>
+<span class="metric">日程冲突自动检测</span>
+<span class="metric">审批自动排序</span>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Getting Started -->
+<section>
+<div class="container">
+<h2 class="section-title">你的第一个小时</h2>
+<p class="section-desc">跟着做就行，不用动脑子。60分钟后你就有一个能干活的AI助理。</p>
+
+<div class="dialogue" style="max-width:700px;margin:0 auto">
+<div class="d-header">⏱️ 分钟级上手指南</div>
+<div class="d-row">
+<div class="d-role" style="color:#1a237e;min-width:80px">0-2分钟</div>
+<div class="d-content"><strong>下载安装</strong><br>打开 <a href="https://easyclaw.com">easyclaw.com</a> → 下载对应系统版本 → 双击安装 → 打开。就这一步，不需要注册账号、不需要填API Key。</div>
+</div>
+<div class="d-row">
+<div class="d-role" style="color:#1a237e;min-width:80px">2-5分钟</div>
+<div class="d-content"><strong>连接你的聊天工具</strong><br>点击「添加渠道」→ 选飞书/微信/WhatsApp → 扫码连接。连好后，你在聊天工具里直接跟龙虾对话就行——不用再打开EasyClaw的界面。</div>
+</div>
+<div class="d-row">
+<div class="d-role" style="color:#1a237e;min-width:80px">5-10分钟</div>
+<div class="d-content"><strong>试第一个指令</strong><br>直接说：<em>"帮我搜一下AI Agent行业最近一周的重大新闻，整理成摘要"</em><br>等30秒，你会看到龙虾自动搜索、过滤、整理出一份结构化的行业简报。这就是它能干的事。</div>
+</div>
+<div class="d-row">
+<div class="d-role" style="color:#1a237e;min-width:80px">10-20分钟</div>
+<div class="d-content"><strong>设第一个定时任务</strong><br>说：<em>"以后每天早上8点，自动帮我搜行业新闻，整理好推送给我"</em><br>从明天开始，你每天早上打开手机就能看到一份定制的行业简报。不需要记、不需要操作——龙虾自己跑。</div>
+</div>
+<div class="d-row">
+<div class="d-role" style="color:#1a237e;min-width:80px">20-60分钟</div>
+<div class="d-content"><strong>探索更多场景</strong><br>试试上面6个场景里你最感兴趣的——比如让它帮你写一段文案、分析一份报告、整理邮件。用自然语言说就行，不需要学任何命令。<br><br>
+💡 <strong>建议从「信息中枢」开始</strong>——这是上手最快、效果最明显的场景。设几个定时监控任务，当天就能感受到价值。</div>
+</div>
+</div>
+
+<div style="text-align:center;margin-top:40px">
+<a href="https://easyclaw.com" class="cta-btn">立即下载 EasyClaw →</a>
+</div>
+</div>
+</section>
+
+<!-- Cost Truth -->
+<section>
+<div class="container">
+<h2 class="section-title">💰 成本真相</h2>
+<p class="section-desc">同样的事，用传统方式做要花多少钱？用龙虾呢？</p>
+
+<div style="max-width:700px;margin:0 auto">
+<div style="display:grid;grid-template-columns:1fr;gap:16px">
+
+<div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+<div><strong style="color:#1a237e">做一份集团战略报告</strong><br><span style="color:#888;font-size:.9em">行业数据+竞品分析+作战方案+风险评估</span></div>
+<div style="text-align:right">
+<div style="color:#999;text-decoration:line-through;font-size:.9em">咨询公司：$50,000 + 2个月</div>
+<div style="color:#2e7d32;font-weight:700;font-size:1.1em">龙虾：约¥50 + 2小时</div>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+<div><strong style="color:#1a237e">给611个员工发个性化短信</strong><br><span style="color:#888;font-size:.9em">每条内容不同，结合岗位和表现</span></div>
+<div style="text-align:right">
+<div style="color:#999;text-decoration:line-through;font-size:.9em">人工：50+小时（每条5分钟）</div>
+<div style="color:#2e7d32;font-weight:700;font-size:1.1em">龙虾：约¥30 + 1晚自动完成</div>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+<div><strong style="color:#1a237e">884条推文深度分析报告</strong><br><span style="color:#888;font-size:.9em">逐条阅读+分类+16页结论</span></div>
+<div style="text-align:right">
+<div style="color:#999;text-decoration:line-through;font-size:.9em">分析师：1-2周 + ¥20,000+</div>
+<div style="color:#2e7d32;font-weight:700;font-size:1.1em">龙虾：约¥50 + 1晚通宵</div>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+<div><strong style="color:#1a237e">建一个59页品牌网站</strong><br><span style="color:#888;font-size:.9em">首页+文章+日记+多语言+科普</span></div>
+<div style="text-align:right">
+<div style="color:#999;text-decoration:line-through;font-size:.9em">外包：¥50,000 + 2周</div>
+<div style="color:#2e7d32;font-weight:700;font-size:1.1em">龙虾：约¥1,000 + 1天</div>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+<div><strong style="color:#1a237e">7×24小时信息监控+日报</strong><br><span style="color:#888;font-size:.9em">行业动态+投资标的+竞品+邮件</span></div>
+<div style="text-align:right">
+<div style="color:#999;text-decoration:line-through;font-size:.9em">助理团队：3人 × ¥15,000/月</div>
+<div style="color:#2e7d32;font-weight:700;font-size:1.1em">龙虾：约¥300-500/月</div>
+</div>
+</div>
+
+</div>
+
+<p style="text-align:center;margin-top:24px;color:#666;font-size:.95em">以上均为真实数据。龙虾的费用 = EasyClaw订阅 + AI模型调用费（按使用量计费）。<br>轻度使用几十块/月，重度使用（8个Agent团队7×24运转）几十块/天。<strong>比任何一个实习生都便宜。</strong></p>
+</div>
+</div>
+</section>
+
+<!-- FAQ -->
+<section>
+<div class="container">
+<h2 class="section-title">常见问题</h2>
+<div style="max-width:700px;margin:0 auto">
+
+<details class="faq-item" open>
+<summary>它真的能理解公司的业务吗？</summary>
+<p>能。而且越用越深。龙虾会记住你说过的每一句话、做过的每一个决策。20天后，它对公司业务、人员、战略的理解，比很多新入职的高管都深。因为你每天都在跟它对话——你的思考过程就是它的学习素材。</p>
+</details>
+
+<details class="faq-item">
+<summary>商业机密安全吗？</summary>
+<p>龙虾跑在你自己的设备上，所有数据存在本地，不经过第三方服务器。你的对话、文件、战略文档只有你自己能访问。这也是为什么它比任何外部咨询公司都安全——数据从不出你的电脑。</p>
+</details>
+
+<details class="faq-item">
+<summary>一个月大概花多少钱？</summary>
+<p>EasyClaw订阅费 + 模型调用费。轻度使用（每天聊几次）：几十块/月。重度使用（7×24小时8个Agent团队运转）：几十块/天。比任何一个实习生都便宜。</p>
+</details>
+
+<details class="faq-item">
+<summary>跟ChatGPT/Claude直接聊有什么区别？</summary>
+<p>ChatGPT是对话工具——你问它答。龙虾是<strong>行动工具</strong>——你说"帮我查竞品"，它真的去搜索、分析、写报告。你说"帮我发短信"，它真的调API发了611条。它能操作文件、浏览网页、发邮件、跑脚本，而且24小时在线，不需要你盯着。</p>
+</details>
+
+<details class="faq-item">
+<summary>我想先从哪个场景开始？</summary>
+<p>建议从<strong>信息监控</strong>开始——设几个定时任务，让龙虾每天推送行业简报和邮件摘要。几乎零配置就能感受到价值。用了一周觉得好，再扩展到内容创作和团队管理。</p>
+</details>
+
+</div>
+</div>
+</section>
+
+<!-- Footer -->
+<footer>
+<div class="container">
+<p>🦞 基于 <a href="https://easyclaw.com">EasyClaw</a> · 所有案例均来自真实CEO使用记录 · 由AI助理三万整理</p>
+<p style="margin-top:8px;opacity:.7">© 2026 EasyClaw · 让每个CEO都有自己的AI团队</p>
+</div>
+</footer>
+
+</body>
+</html>
