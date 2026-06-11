@@ -258,6 +258,92 @@ nav{padding:0 16px;top:0}
 /* Smooth hover on all cards */
 .section div[style*="border"]:hover{border-color:#c0392b!important;transform:translateY(-2px);transition:.2s}
 
+
+/* ===== FABLE 5 RED ALERT ANNOUNCEMENT BANNER ===== */
+.fable-banner {
+  background: linear-gradient(135deg, #0a0c0f 0%, #1a1015 30%, #0a0c0f 100%);
+  border-bottom: 3px solid #d43d3d;
+  margin-top: 56px;
+  position: relative;
+  cursor: pointer;
+  display: block;
+  text-decoration: none;
+  box-shadow: 0 2px 30px rgba(212,61,61,0.25);
+}
+.fable-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 50%, rgba(212,61,61,0.12), transparent 60%),
+              radial-gradient(ellipse at 70% 50%, rgba(212,168,67,0.06), transparent 50%);
+  pointer-events: none;
+}
+.fable-banner-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  text-align: center;
+}
+.fable-banner-badge {
+  background: #d43d3d;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  padding: 4px 12px;
+  border-radius: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  animation: fable-badge-glow 2s ease-in-out infinite;
+}
+@keyframes fable-badge-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(212,61,61,0.4); }
+  50% { box-shadow: 0 0 20px rgba(212,61,61,0.7); }
+}
+.fable-banner-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e0d8c8;
+  line-height: 1.6;
+}
+.fable-banner-text strong {
+  color: #ff6666;
+}
+.fable-banner-arrow {
+  font-size: 13px;
+  font-weight: 800;
+  color: #d4a843;
+  white-space: nowrap;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+.fable-banner:hover .fable-banner-arrow {
+  color: #e8c060;
+}
+/* Mobile: vertical layout so text never gets cut off */
+@media (max-width: 768px) {
+  .fable-banner-inner {
+    flex-direction: column;
+    padding: 12px 16px;
+    gap: 6px;
+  }
+  .fable-banner-text {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .fable-banner-badge {
+    font-size: 10px;
+    padding: 3px 10px;
+  }
+  .fable-banner-arrow {
+    font-size: 12px;
+  }
+}
 </style>
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="三万·龙虾养成日记 | sanwan.ai">
@@ -280,6 +366,7 @@ nav{padding:0 16px;top:0}
 </head>
 <body>
 
+
 <div class="progress-bar" id="progressBar"></div>
 
 <nav>
@@ -295,6 +382,14 @@ nav{padding:0 16px;top:0}
 <a href="easyclaw.html">🦞 EasyClaw</a>
 </div>
 </nav>
+<a href="/articles/red-alert-fable.html" class="fable-banner">
+  <div class="fable-banner-inner">
+    <span class="fable-banner-badge">🔴 红色警戒</span>
+    <span class="fable-banner-text">一句话Prompt丢给AI，睡一觉醒来——红色警戒做完了。4轮16个任务145测试全绿，全程零人类代码。</span>
+    <span class="fable-banner-arrow">立即围观 →</span>
+  </div>
+</a>
+
 
 <!-- HERO V2 -->
 <div class="whiteboard">
@@ -521,9 +616,9 @@ nav{padding:0 16px;top:0}
 <div style="font-size:18px;font-weight:800;margin-bottom:8px">越用越聪明，越来越懂你</div>
 <div style="font-size:14px;color:#666;line-height:1.8">
 <strong style="color:#c0392b">扔给它一篇文章，22分钟后它说：部署完了。</strong>自己找到GitHub链接，下载、安装、配置、跑通测试。<br>
-摔伤后它说了一句："要不要我联系Abby？"——Abby是老板的人类助理，5天前随口提过一次。<br>
-犯了错也会记住——泄密被批评后，当晚自己写了一整套保密制度。从此再没犯过。
-<div style="margin-top:8px"><a href="diary.html#day7" style="font-size:12px;color:#2874a6;font-weight:600;text-decoration:none">📖 看完整故事：它记住了5天前的Abby →</a></div>
+摔伤后它说了一句："要不要我联系你的助理？"——5天前老板随口提过一次助理的名字。<br>
+犯了错也会记住——犯错被批评后，当晚自己写了一整套安全制度。从此再没犯过。
+<div style="margin-top:8px"><a href="diary.html#day7" style="font-size:12px;color:#2874a6;font-weight:600;text-decoration:none">📖 看完整故事：它记住了5天前提过的助理 →</a></div>
 </div>
 </div>
 </div>
@@ -1153,7 +1248,7 @@ document.querySelectorAll('.section, .section-bg').forEach(el => {
 
 
 
-<script>!function(){var p=location.pathname,r=document.referrer,l=navigator.language;new Image().src="https://stats.sanwan.ai/api/track?page="+encodeURIComponent(p)+"&ref="+encodeURIComponent(r)+"&lang="+encodeURIComponent(l)}();</script>
+<script>!function(){var p=location.pathname,r=document.referrer,l=navigator.language;new Image().src="https://clawdbot-f.cmcm.com/sanwan-stats/api/track?page="+encodeURIComponent(p)+"&ref="+encodeURIComponent(r)+"&lang="+encodeURIComponent(l)}();</script>
 
 <!-- sanwan.ai Analytics -->
 <script>
