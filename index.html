@@ -259,90 +259,116 @@ nav{padding:0 16px;top:0}
 .section div[style*="border"]:hover{border-color:#c0392b!important;transform:translateY(-2px);transition:.2s}
 
 
-/* ===== FABLE 5 RED ALERT ANNOUNCEMENT BANNER ===== */
-.fable-banner {
+/* ===== AI 游戏大乱斗 · 双游戏展示 ===== */
+.fable-dual {
   background: linear-gradient(135deg, #0a0c0f 0%, #1a1015 30%, #0a0c0f 100%);
-  border-bottom: 3px solid #d43d3d;
+  border-bottom: 3px solid #555;
   margin-top: 56px;
   position: relative;
-  cursor: pointer;
-  display: block;
-  text-decoration: none;
-  box-shadow: 0 2px 30px rgba(212,61,61,0.25);
+  box-shadow: 0 2px 30px rgba(100,100,100,0.25);
 }
-.fable-banner::before {
+.fable-dual::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 30% 50%, rgba(212,61,61,0.12), transparent 60%),
-              radial-gradient(ellipse at 70% 50%, rgba(212,168,67,0.06), transparent 50%);
+  background: radial-gradient(ellipse at 25% 50%, rgba(212,61,61,0.08), transparent 50%),
+              radial-gradient(ellipse at 75% 50%, rgba(74,144,217,0.08), transparent 50%);
   pointer-events: none;
 }
-.fable-banner-inner {
-  max-width: 900px;
+.fable-dual-inner {
+  max-width: 960px;
   margin: 0 auto;
-  padding: 14px 20px;
+  padding: 16px 24px;
+}
+.fable-dual-header {
+  text-align: center;
+  margin-bottom: 12px;
+}
+.fable-dual-header-title {
+  font-family: 'ZCOOL KuaiLe', sans-serif;
+  font-size: 20px;
+  color: #e0d8c8;
+  margin-bottom: 2px;
+}
+.fable-dual-header-sub {
+  font-size: 12px;
+  color: #888;
+  letter-spacing: 1px;
+}
+.fable-dual-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.fable-card {
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 12px 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: all .3s;
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 14px;
   flex-wrap: wrap;
-  text-align: center;
+  gap: 10px;
 }
-.fable-banner-badge {
-  background: #d43d3d;
-  color: #fff;
-  font-size: 11px;
+.fable-card:hover {
+  transform: translateY(-2px);
+}
+.fable-card-1 { border-color: rgba(212,61,61,0.3); }
+.fable-card-1:hover { border-color: rgba(212,61,61,0.6); box-shadow: 0 8px 30px rgba(212,61,61,0.15); }
+.fable-card-2 { border-color: rgba(74,144,217,0.3); }
+.fable-card-2:hover { border-color: rgba(74,144,217,0.6); box-shadow: 0 8px 30px rgba(74,144,217,0.15); }
+.fable-card-badge {
+  display: inline-block;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 2px;
-  padding: 4px 12px;
+  padding: 3px 10px;
   border-radius: 3px;
-  white-space: nowrap;
   flex-shrink: 0;
-  animation: fable-badge-glow 2s ease-in-out infinite;
+}
+.fable-card-badge-1 { background: #d43d3d; color: #fff; animation: fable-badge-glow 2s ease-in-out infinite; }
+.fable-card-badge-2 { background: #4a90d9; color: #fff; }
+.fable-card-icon { font-size: 20px; }
+.fable-card-title { font-size: 15px; font-weight: 800; color: #e0d8c8; }
+.fable-card-desc { font-size: 12px; color: #888; line-height: 1.5; flex: 1; min-width: 200px; }
+.fable-card-desc strong { color: #ccc; }
+.fable-card-btns { display: flex; gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
+.fable-card-btn {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: .2s;
+  white-space: nowrap;
+}
+.fable-card-btn-play { background: #d43d3d; color: #fff; }
+.fable-card-btn-play:hover { background: #b33030; transform: translateY(-1px); }
+.fable-card-btn-play.blue { background: #4a90d9; }
+.fable-card-btn-play.blue:hover { background: #357abd; }
+.fable-card-btn-story { background: transparent; border: 1.5px solid rgba(255,255,255,0.2); color: #aaa; }
+.fable-card-btn-story:hover { border-color: rgba(255,255,255,0.5); color: #ddd; }
+.fable-dual-footer {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 11px;
+  color: #666;
 }
 @keyframes fable-badge-glow {
   0%, 100% { box-shadow: 0 0 8px rgba(212,61,61,0.4); }
   50% { box-shadow: 0 0 20px rgba(212,61,61,0.7); }
 }
-.fable-banner-text {
-  font-size: 14px;
-  font-weight: 700;
-  color: #e0d8c8;
-  line-height: 1.6;
-}
-.fable-banner-text strong {
-  color: #ff6666;
-}
-.fable-banner-arrow {
-  font-size: 13px;
-  font-weight: 800;
-  color: #d4a843;
-  white-space: nowrap;
-  letter-spacing: 1px;
-  flex-shrink: 0;
-}
-.fable-banner:hover .fable-banner-arrow {
-  color: #e8c060;
-}
-/* Mobile: vertical layout so text never gets cut off */
+/* Mobile: stack cards vertically */
 @media (max-width: 768px) {
-  .fable-banner-inner {
-    flex-direction: column;
-    padding: 12px 16px;
-    gap: 6px;
-  }
-  .fable-banner-text {
-    font-size: 13px;
-    line-height: 1.5;
-  }
-  .fable-banner-badge {
-    font-size: 10px;
-    padding: 3px 10px;
-  }
-  .fable-banner-arrow {
-    font-size: 12px;
-  }
+  .fable-dual-cards { grid-template-columns: 1fr; }
+  .fable-dual-inner { padding: 16px; }
+  .fable-dual-header-title { font-size: 18px; }
 }
 </style>
 <meta name="twitter:card" content="summary_large_image">
@@ -382,13 +408,41 @@ nav{padding:0 16px;top:0}
 <a href="easyclaw.html">🦞 EasyClaw</a>
 </div>
 </nav>
-<a href="/articles/red-alert-fable.html" class="fable-banner">
-  <div class="fable-banner-inner">
-    <span class="fable-banner-badge">🔴 红色警戒</span>
-    <span class="fable-banner-text">一句话Prompt丢给AI，睡一觉醒来——红色警戒做完了。4轮16个任务145测试全绿，全程零人类代码。</span>
-    <span class="fable-banner-arrow">立即围观 →</span>
+<section class="fable-dual">
+  <div class="fable-dual-inner">
+    <div class="fable-dual-header">
+      <div class="fable-dual-header-title">🎮 AI 游戏大乱斗</div>
+      <div class="fable-dual-header-sub">一句话 Prompt 丢给 AI · 游戏做完了</div>
+    </div>
+    <div class="fable-dual-cards">
+      <a href="/articles/red-alert-fable.html" class="fable-card fable-card-1">
+        <span class="fable-card-badge fable-card-badge-1">🔴 第一期</span>
+        <span class="fable-card-icon">🎖️</span>
+        <span class="fable-card-title">红色警戒</span>
+        <span class="fable-card-desc">
+          <strong>DeepSeek 一句话出游戏。</strong> 4 轮 16 个任务，145 测试全绿，全程零人类代码。
+        </span>
+        <div class="fable-card-btns">
+          <a href="/games/tank-vs-plane.html" class="fable-card-btn fable-card-btn-play" onclick="event.stopPropagation()">🎮 立即开玩</a>
+          <span class="fable-card-btn fable-card-btn-story">📖 看故事</span>
+        </div>
+      </a>
+      <a href="/articles/ai-match3-battle.html" class="fable-card fable-card-2">
+        <span class="fable-card-badge fable-card-badge-2">💎 第二期</span>
+        <span class="fable-card-icon">💎</span>
+        <span class="fable-card-title">AI 消消乐</span>
+        <span class="fable-card-desc">
+          <strong>一个晚上，一把过。</strong> 消消乐对战 AI，0 bug 直接上线，玩起来真过瘾。
+        </span>
+        <div class="fable-card-btns">
+          <a href="https://ai-match3-battle.fly.dev/" target="_blank" class="fable-card-btn fable-card-btn-play blue" onclick="event.stopPropagation()">🎮 立即开玩</a>
+          <span class="fable-card-btn fable-card-btn-story">📖 看故事</span>
+        </div>
+      </a>
+    </div>
+    <div class="fable-dual-footer">持续更新中 · 第三期预告：你想看 AI 做什么游戏？去首页评论区告诉三万 🦞</div>
   </div>
-</a>
+</section>
 
 
 <!-- HERO V2 -->
@@ -1412,7 +1466,7 @@ document.querySelectorAll('.section, .section-bg').forEach(el => {
 </script>
 
 
-</body>
+<script>if(!document.getElementById("_sp")){var e=document.createElement("img");e.id="_sp";e.src="/stats?p="+encodeURIComponent(location.pathname);e.style="display:none";document.body.appendChild(e);}</script></body>
 </html>
 <li><a href="/skill-agents.html" style="color:#a5b4fc">AGENTS.md 完全指南 — Agent 边界与安全红线</a></li>
 
